@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* ── Design tokens — PartnerLink palette ──────────────────────────────────── */
+@theme {
+  /* Primary navy scale */
+  --color-navy-950: #010736;   /* page background  */
+  --color-navy-900: #0D1C42;   /* surface / nav     */
+  --color-navy-700: #22396F;   /* card / border     */
+  --color-navy-500: #2d4d8e;   /* hover states      */
+
+  /* Cream accent */
+  --color-cream-50:  #fffef9;
+  --color-cream-100: #FCF1D0;  /* primary highlight */
+  --color-cream-200: #f5e3ae;  /* dimmed cream      */
+  --color-cream-400: #e8c97a;  /* warm gold         */
+
+  /* Legacy aliases kept so nothing breaks */
+  --color-brand-500: #22396F;
+  --color-brand-600: #0D1C42;
+  --color-accent-400: #FCF1D0;
+  --color-accent-500: #e8c97a;
+
+  --font-sans:    'Inter', system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: #010736;
+  color: #FCF1D0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Utility: shimmer keyframe for the hero gradient text ─────────────────── */
+@keyframes shimmer {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+.animate-shimmer {
+  background-size: 200% 200%;
+  animation: shimmer 5s ease infinite;
+}
+
+/* ── Utility: soft pulse for the "live" indicator dot ────────────────────── */
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%       { opacity: 0.5; transform: scale(1.3);  }
+}
+.animate-soft-pulse { animation: soft-pulse 2s ease-in-out infinite; }
+
+/* ── Scrollbar (webkit) ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #010736; }
+::-webkit-scrollbar-thumb { background: #22396F; border-radius: 9999px; }
