@@ -1,18 +1,25 @@
 /**
- * Badge — small inline tag, e.g. for skills or status labels.
+ * Badge — small inline tag for skills, interests and status labels.
  */
-export default function Badge({ children, variant = 'default' }) {
-  const variants = {
-    default: 'bg-navy-700/60 text-cream-100 border border-navy-700',
-    cream:   'bg-cream-100/10 text-cream-100 border border-cream-100/30',
-    gold:    'bg-cream-400/10 text-cream-400 border border-cream-400/30',
-    muted:   'bg-navy-900/60 text-cream-200/50 border border-navy-700/50',
-  };
+const VARIANTS = {
+  default: 'border-border bg-surface-elevated text-text-secondary',
+  gold: 'border-primary/35 bg-primary/10 text-primary-highlight',
+  muted: 'border-transparent bg-surface-elevated/60 text-text-muted',
+  success: 'border-success/30 bg-success/10 text-success',
+  outline: 'border-border bg-transparent text-text-muted',
+};
 
+const SIZES = {
+  sm: 'px-2 py-0.5 text-[0.6875rem]',
+  md: 'px-2.5 py-1 text-xs',
+};
+
+export default function Badge({ children, variant = 'default', size = 'md', icon: Icon, className = '' }) {
   return (
     <span
-      className={`inline-block rounded-full px-3 py-0.5 text-xs font-medium transition-colors ${variants[variant]}`}
+      className={`inline-flex items-center gap-1 rounded-full border font-medium leading-none whitespace-nowrap transition-colors duration-300 ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
     >
+      {Icon && <Icon size={12} aria-hidden="true" />}
       {children}
     </span>
   );
