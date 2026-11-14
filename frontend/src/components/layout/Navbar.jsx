@@ -7,6 +7,7 @@ import Button from '../common/Button.jsx';
 import SectionLink from '../common/SectionLink.jsx';
 import ThemeToggle from '../common/ThemeToggle.jsx';
 import { useActiveSection } from '../../hooks/useActiveSection.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { NAV_ITEMS, NAV_SECTION_IDS } from '../../data/landing.js';
 import { EASE_OUT } from '../../lib/motion.js';
 import { ROUTES } from '../../routes/paths.js';
@@ -15,8 +16,11 @@ const MOBILE_MENU_ID = 'mobile-navigation';
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
   const isHome = pathname === ROUTES.HOME;
   const active = useActiveSection(NAV_SECTION_IDS, isHome);
+  const ctaTo = user ? ROUTES.DASHBOARD : ROUTES.REGISTER;
+  const ctaLabel = user ? 'Open app' : 'Get Started';
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -102,9 +106,14 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            {!user && (
+              <Button to={ROUTES.LOGIN} size="sm" variant="ghost" className="hidden sm:inline-flex">
+                Sign in
+              </Button>
+            )}
             <div className="hidden sm:block">
-              <Button href="#get-started" size="sm" icon={ArrowRight}>
-                Get Started
+              <Button to={ctaTo} size="sm" icon={ArrowRight}>
+                {ctaLabel}
               </Button>
             </div>
             <button
@@ -182,14 +191,24 @@ export default function Navbar() {
                   </motion.li>
                 ))}
               </motion.ul>
-              <div className="mt-2 border-t border-border pt-3">
+              <div className="mt-2 space-y-2 border-t border-border pt-3">
+                {!user && (
+                  <Button
+                    to={ROUTES.LOGIN}
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Sign in
+                  </Button>
+                )}
                 <Button
-                  href="#get-started"
+                  to={ctaTo}
                   icon={ArrowRight}
                   className="w-full"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Get Started
+                  {ctaLabel}
                 </Button>
               </div>
             </motion.div>

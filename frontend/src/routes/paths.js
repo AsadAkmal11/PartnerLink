@@ -1,12 +1,12 @@
 /**
  * Centralised route path constants.
- * Import this wherever you need to link to a page, to avoid magic strings.
- *
- * Example:
- *   import { ROUTES } from '../routes/paths.js';
- *   <Link to={ROUTES.HOME}>Home</Link>
  */
 export const ROUTES = {
   HOME: '/',
+  LOGIN: '/login',
+  REGISTER: '/register',
+  DASHBOARD: '/app',
+  DISCOVERY: '/app/discovery',
+  PROFILE: '/app/profile',
+  ADMIN: '/app/admin',
 };
-

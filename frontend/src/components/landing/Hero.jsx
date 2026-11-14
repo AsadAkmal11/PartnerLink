@@ -5,6 +5,7 @@ import Button from '../common/Button.jsx';
 import BackgroundGlow from './BackgroundGlow.jsx';
 import HeroVisual from './HeroVisual.jsx';
 import { fadeUp, stagger, wordReveal } from '../../lib/motion.js';
+import { ROUTES } from '../../routes/paths.js';
 
 /* Headline split into words so each can rise in turn; `gold` words get the accent. */
 const HEADLINE = [
@@ -70,8 +71,8 @@ export default function Hero() {
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-            <Button href="#discover" size="lg" icon={ArrowRight}>
-              Explore discovery
+            <Button to={ROUTES.REGISTER} size="lg" icon={ArrowRight}>
+              Get started
             </Button>
             <Button href="#how-it-works" size="lg" variant="secondary" icon={PlayCircle} iconPosition="left">
               See how it works

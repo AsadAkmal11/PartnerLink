@@ -5,6 +5,7 @@ import { MotionConfig } from 'motion/react';
 import './styles/index.css';
 import App from './App.jsx';
 import ThemeProvider from './theme/ThemeProvider.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -12,7 +13,9 @@ createRoot(document.getElementById('root')).render(
       {/* reducedMotion="user" disables transform/layout animation for users who ask for it */}
       <MotionConfig reducedMotion="user">
         <BrowserRouter>
-          <App />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
         </BrowserRouter>
       </MotionConfig>
     </ThemeProvider>

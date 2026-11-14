@@ -102,8 +102,9 @@ export default function Button({
     );
   }
 
+  const { type = 'button', ...buttonRest } = rest;
   return (
-    <motion.button type="button" className={classes} {...MOTION} {...rest}>
+    <motion.button type={type} className={classes} {...MOTION} {...buttonRest}>
       {content}
     </motion.button>
   );

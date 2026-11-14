@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import AnimatedSection from '../common/AnimatedSection.jsx';
 import Button from '../common/Button.jsx';
 import { fadeUp, scaleIn, stagger } from '../../lib/motion.js';
+import { ROUTES } from '../../routes/paths.js';
 
 export default function FinalCTA() {
   return (
@@ -31,15 +32,15 @@ export default function FinalCTA() {
               Start your FYP with the <span className="text-gold-gradient">right people</span>
             </motion.h2>
             <motion.p variants={fadeUp} className="text-lead mt-5 text-pretty">
-              PartnerLink is in active development for GIKI students. Student registration is coming soon — until then,
-              explore how discovery works and see what your profile will include.
+              Create your GIKI account, build a skill-rich profile, and get ranked recommendations for compatible
+              FYP teammates and approved faculty supervisors.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-9 flex flex-wrap justify-center gap-3">
-              <Button href="#how-it-works" size="lg" icon={ArrowRight}>
-                Review the steps
+              <Button to={ROUTES.REGISTER} size="lg" icon={ArrowRight}>
+                Create account
               </Button>
-              <Button href="#discover" size="lg" variant="secondary">
-                Try the discovery preview
+              <Button to={ROUTES.LOGIN} size="lg" variant="secondary">
+                Sign in
               </Button>
             </motion.div>
           </motion.div>

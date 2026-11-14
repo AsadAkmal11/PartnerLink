@@ -1,0 +1,1 @@
+"""PartnerLink FastAPI application package."""
