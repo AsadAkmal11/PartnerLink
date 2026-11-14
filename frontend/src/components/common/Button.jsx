@@ -6,16 +6,16 @@ const MotionLink = motion.create(Link);
 
 const VARIANTS = {
   primary:
-    'btn-sheen bg-primary text-on-primary shadow-[0_8px_24px_-12px_var(--color-primary)] hover:brightness-110 hover:shadow-glow',
+    'btn-sheen rounded-[10px] bg-primary text-on-primary shadow-[0_8px_24px_-12px_var(--color-primary)] hover:brightness-110 hover:shadow-glow',
   secondary:
-    'border border-border bg-surface/70 text-text backdrop-blur hover:border-primary/50 hover:bg-surface-elevated',
+    'glass-pill text-text hover:brightness-125',
   ghost: 'text-text-secondary hover:text-text hover:bg-surface-elevated/70',
 };
 
 const SIZES = {
   sm: 'h-9 px-4 text-sm gap-1.5',
   md: 'h-11 px-5 text-sm gap-2',
-  lg: 'h-12 px-6 text-[0.95rem] gap-2.5',
+  lg: 'h-12 px-8 text-base gap-2.5',
 };
 
 const MOTION = {
@@ -45,8 +45,9 @@ export default function Button({
   const { pathname } = useLocation();
 
   const classes = [
-    'group inline-flex shrink-0 items-center justify-center rounded-xl font-semibold whitespace-nowrap',
-    'transition-[background-color,border-color,color,box-shadow,filter] duration-300',
+    'group inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap',
+    variant === 'ghost' ? 'rounded-xl' : '',
+    'transition-[background-color,border-color,color,box-shadow,filter,brightness] duration-300',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
     VARIANTS[variant],
     SIZES[size],

@@ -28,16 +28,16 @@ export default function StepCard({ step, index }) {
     <motion.li variants={stepVariants} className="relative flex gap-5 md:flex-col md:items-center md:gap-0 md:text-center">
       {/* Node */}
       <motion.div variants={nodeVariants} className="relative z-10 shrink-0">
-        <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/40 bg-surface-elevated text-primary-highlight shadow-glow">
+        <span className="glass-pill flex h-14 w-14 items-center justify-center text-primary-highlight">
           <Icon size={22} strokeWidth={1.8} aria-hidden="true" />
         </span>
-        <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary font-display text-[0.7rem] font-bold text-on-primary">
+        <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary font-mono text-[0.7rem] font-semibold text-on-primary">
           {index + 1}
         </span>
       </motion.div>
 
       {/* Content */}
-      <div className="group flex-1 rounded-2xl border border-border bg-surface p-6 shadow-card transition-[border-color,transform] duration-500 hover:-translate-y-1 hover:border-primary/40 md:mt-8 md:w-full">
+      <div className="group flex-1 rounded-[14px] border border-border/70 bg-surface/30 p-6 backdrop-blur-sm transition-[border-color,transform] duration-500 hover:-translate-y-1 hover:border-primary/35 md:mt-8 md:w-full">
         <p className="eyebrow text-[0.6875rem]!">Step {index + 1}</p>
         <h3 className="heading-card mt-2">{title}</h3>
         <p className="text-body mt-2.5">{description}</p>

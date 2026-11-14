@@ -22,6 +22,7 @@ export const NAV_ITEMS = [
   { id: 'home', label: 'Home' },
   { id: 'features', label: 'Features' },
   { id: 'how-it-works', label: 'How It Works' },
+  { id: 'discover', label: 'Matches' },
   { id: 'faculty', label: 'Faculty' },
 ];
 
@@ -108,34 +109,67 @@ export const DEMO_STUDENTS = [
     name: 'Aria Noor',
     program: 'Computer Science',
     tone: 'gold',
+    matchScore: 92,
     skills: ['Python', 'PyTorch', 'OpenCV'],
     interests: ['Computer Vision', 'Robotics'],
+    bio: 'Building vision systems for campus robotics and medical imaging.',
+    image: 'https://api.dicebear.com/9.x/notionists/svg?seed=AriaNoor&backgroundColor=1a1a22',
   },
   {
     id: 'demo-2',
     name: 'Zayan Malik',
     program: 'Computer Engineering',
     tone: 'navy',
+    matchScore: 84,
     skills: ['C/C++', 'Arduino', 'PCB Design'],
     interests: ['Embedded Systems', 'Robotics'],
+    bio: 'Hardware-first maker exploring edge AI and sensor networks.',
+    image: 'https://api.dicebear.com/9.x/notionists/svg?seed=ZayanMalik&backgroundColor=1a1a22',
   },
   {
     id: 'demo-3',
     name: 'Hira Saeed',
     program: 'Software Engineering',
     tone: 'success',
+    matchScore: 78,
     skills: ['React', 'Node.js', 'PostgreSQL'],
     interests: ['Web Platforms', 'NLP'],
+    bio: 'Full-stack engineer interested in language tech and product systems.',
+    image: 'https://api.dicebear.com/9.x/notionists/svg?seed=HiraSaeed&backgroundColor=1a1a22',
   },
   {
     id: 'demo-4',
     name: 'Omar Farooq',
     program: 'Cyber Security',
     tone: 'soft',
+    matchScore: 71,
     skills: ['Networking', 'Linux', 'Go'],
     interests: ['Cybersecurity', 'Embedded Systems'],
+    bio: 'Secure systems and embedded device hardening for FYP work.',
+    image: 'https://api.dicebear.com/9.x/notionists/svg?seed=OmarFarooq&backgroundColor=1a1a22',
   },
 ];
+
+/** Lanyard rail items derived from demo students (fictional). */
+export const DEMO_LANYARD_MEMBERS = DEMO_STUDENTS.map((s, i) => ({
+  id: s.id,
+  name: s.name,
+  role: s.program,
+  team: 'GIKI · FYP',
+  image: s.image,
+  bio: s.bio,
+  tags: [...s.skills.slice(0, 2), ...s.interests.slice(0, 1)],
+  tone: /** @type {1|2|3|4|5} */ ((i % 5) + 1),
+  drop: [6, 18, 2, 12][i] ?? 8,
+}));
+
+/** Bar-race rows for demo match scores (0–100). */
+export const DEMO_MATCH_BARS = DEMO_STUDENTS.map((s, i) => ({
+  id: s.id,
+  label: s.name.split(' ')[0],
+  value: s.matchScore,
+  color: /** @type {1|2|3|4|5} */ ((i % 5) + 1),
+}));
 
 /* ── Faculty preview (FICTIONAL) ────────────────────────────────────────── */
 export const FACULTY_DOMAINS = ['All', 'Intelligent Systems', 'Embedded & IoT', 'Software & Data'];

@@ -1,7 +1,6 @@
-import Badge from './Badge.jsx';
-import Card from './Card.jsx';
-import Avatar from './Avatar.jsx';
-
+/**
+ * Minimal person surface used in dashboards / discovery.
+ */
 export default function PersonCard({
   name,
   subtitle,
@@ -11,30 +10,34 @@ export default function PersonCard({
   children,
 }) {
   return (
-    <Card interactive elevated className="flex h-full flex-col p-5">
-      <div className="flex items-start gap-3">
-        <Avatar name={name} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="truncate font-display text-base font-semibold">{name}</h3>
-            {typeof score === 'number' && (
-              <span className="shrink-0 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                {Math.round(score * 100)}% match
-              </span>
-            )}
-          </div>
-          {subtitle && <p className="mt-0.5 text-sm text-text-muted">{subtitle}</p>}
+    <article className="group flex h-full flex-col border-b border-border/70 py-5 transition-colors hover:border-primary/40 sm:rounded-[14px] sm:border sm:border-border/70 sm:bg-surface/40 sm:px-5 sm:py-5 sm:backdrop-blur-sm sm:hover:border-primary/35">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="truncate font-display text-lg tracking-tight text-text">{name}</h3>
+          {subtitle && <p className="mt-0.5 truncate text-sm text-text-muted">{subtitle}</p>}
         </div>
+        {typeof score === 'number' && (
+          <span className="shrink-0 font-mono text-xs tabular-nums text-primary">
+            {Math.round(score * 100)}%
+          </span>
+        )}
       </div>
-      {children && <div className="mt-3 text-sm text-text-secondary">{children}</div>}
+
+      {children && (
+        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-text-secondary">{children}</p>
+      )}
+
       {tags.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-1.5">
+        <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1">
           {tags.map((tag) => (
-            <Badge key={tag}>{tag}</Badge>
+            <span key={tag} className="text-xs text-text-muted">
+              {tag}
+            </span>
           ))}
         </div>
       )}
-      {footer && <div className="mt-auto pt-4 text-xs text-text-muted">{footer}</div>}
-    </Card>
+
+      {footer && <p className="mt-auto pt-4 font-mono text-[0.7rem] text-text-muted">{footer}</p>}
+    </article>
   );
 }

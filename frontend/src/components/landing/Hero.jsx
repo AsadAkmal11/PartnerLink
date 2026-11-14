@@ -1,93 +1,83 @@
-import { Fragment } from 'react';
-import { motion } from 'motion/react';
-import { ArrowRight, PlayCircle, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, Maximize2, Minimize2 } from 'lucide-react';
 import Button from '../common/Button.jsx';
-import BackgroundGlow from './BackgroundGlow.jsx';
-import HeroVisual from './HeroVisual.jsx';
-import { fadeUp, stagger, wordReveal } from '../../lib/motion.js';
 import { ROUTES } from '../../routes/paths.js';
 
-/* Headline split into words so each can rise in turn; `gold` words get the accent. */
-const HEADLINE = [
-  { text: 'Find' },
-  { text: 'the' },
-  { text: 'right' },
-  { text: 'partners', gold: true },
-  { text: 'for' },
-  { text: 'your' },
-  { text: 'Final', gold: true },
-  { text: 'Year', gold: true },
-  { text: 'Project.', gold: true },
-];
+const VIDEO_URL =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260210_031346_d87182fb-b0af-4273-84d1-c6fd17d6bf0f.mp4';
 
 export default function Hero() {
+  const [fullBleed, setFullBleed] = useState(true);
+
   return (
     <section
       id="home"
       aria-labelledby="hero-heading"
-      className="relative isolate overflow-hidden pt-32 pb-24 sm:pt-36 lg:pb-32 lg:pt-40"
+      className={`relative w-full overflow-hidden transition-all duration-500 ease-in-out ${
+        fullBleed ? 'min-h-screen' : 'pb-28 pt-28 lg:pb-36 lg:pt-36'
+      }`}
     >
-      <BackgroundGlow />
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 z-0 h-full w-full object-cover"
+      >
+        <source src={VIDEO_URL} type="video/mp4" />
+      </video>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-20 px-5 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
-        {/* Copy */}
-        <motion.div
-          variants={stagger(0.12, 0.1)}
-          initial="hidden"
-          animate="show"
-          className="flex flex-col items-center text-center lg:items-start lg:text-left"
-        >
-          <motion.p
-            variants={fadeUp}
-            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary-highlight"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-soft-pulse" aria-hidden="true" />
-            Built exclusively for GIKI students
-          </motion.p>
+      {/* Readability scrim */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-[1]"
+        style={{
+          background:
+            'linear-gradient(180deg, rgb(7 7 10 / 0.55) 0%, rgb(7 7 10 / 0.35) 40%, rgb(7 7 10 / 0.72) 100%)',
+        }}
+      />
 
-          <motion.h1
-            id="hero-heading"
-            variants={stagger(0.06, 0.1)}
-            className="heading-hero mt-7 max-w-[14ch] text-balance sm:max-w-[16ch]"
-          >
-            {HEADLINE.map((word, i) => (
-              <Fragment key={i}>
-                <span className="inline-block overflow-hidden pb-[0.12em] align-bottom">
-                  <motion.span
-                    variants={wordReveal}
-                    className={`inline-block ${word.gold ? 'text-gold-gradient' : ''}`}
-                  >
-                    {word.text}
-                  </motion.span>
-                </span>
-                {i < HEADLINE.length - 1 && ' '}
-              </Fragment>
-            ))}
-          </motion.h1>
+      <button
+        type="button"
+        onClick={() => setFullBleed((v) => !v)}
+        aria-label={fullBleed ? 'Switch to fit-to-content' : 'Switch to full-bleed'}
+        className="glass-pill absolute top-24 right-4 z-20 p-2.5 text-text transition-all hover:brightness-125 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:top-28 lg:right-8"
+      >
+        {fullBleed ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+      </button>
 
-          <motion.p variants={fadeUp} className="text-lead mt-6 max-w-xl text-pretty">
-            PartnerLink helps you discover classmates with complementary skills, shared research interests
-            and compatible academic goals — so your FYP team is built on the right foundation from day one.
-          </motion.p>
+      <div
+        className={`relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 text-center ${
+          fullBleed ? 'min-h-screen justify-center pb-16 pt-28' : 'mt-8'
+        }`}
+      >
+        <div className="glass-pill inline-flex h-[38px] items-center gap-2.5 px-3.5">
+          <span className="rounded-md bg-primary px-2.5 py-1 text-xs font-semibold text-on-primary shadow-[0_0_8px_rgba(212,168,83,0.4)]">
+            New
+          </span>
+          <span className="text-sm font-medium tracking-wide text-text">
+            PartnerLink for GIKI FYP teams
+          </span>
+        </div>
 
-          <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-            <Button to={ROUTES.REGISTER} size="lg" icon={ArrowRight}>
-              Get started
-            </Button>
-            <Button href="#how-it-works" size="lg" variant="secondary" icon={PlayCircle} iconPosition="left">
-              See how it works
-            </Button>
-          </motion.div>
+        <h1 id="hero-heading" className="heading-hero mt-8 max-w-5xl text-balance">
+          Find your perfect FYP partners
+          <br className="hidden lg:block" />{' '}
+          <em className="italic text-gold-gradient">and</em> start building
+        </h1>
 
-          <motion.p variants={fadeUp} className="mt-8 inline-flex items-center gap-2 text-sm text-text-muted">
-            <ShieldCheck size={16} className="text-primary-highlight" aria-hidden="true" />
-            Designed around verified GIKI accounts and vetted faculty profiles.
-          </motion.p>
-        </motion.div>
+        <p className="text-lead mt-6 max-w-[40rem] text-pretty">
+          Match with classmates by skills, research interests and academic fit — then discover
+          approved faculty supervisors who align with your project.
+        </p>
 
-        {/* Product preview */}
-        <div className="px-2 sm:px-6 lg:px-0">
-          <HeroVisual />
+        <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+          <Button to={ROUTES.REGISTER} size="lg" icon={ArrowRight}>
+            Get started
+          </Button>
+          <Button to={ROUTES.LOGIN} size="lg" variant="secondary">
+            Sign in
+          </Button>
         </div>
       </div>
     </section>

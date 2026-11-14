@@ -80,8 +80,8 @@ export default function RegisterPage() {
   return (
     <div className="relative flex min-h-[calc(100vh-8rem)] items-center justify-center px-5 py-16">
       <motion.div variants={fadeUp} initial="hidden" animate="show" className="w-full max-w-xl">
-        <Card elevated className="p-8">
-          <h1 className="font-display text-2xl font-bold tracking-tight">Join PartnerLink</h1>
+        <Card elevated className="glass-pill border-0 p-8 shadow-none">
+          <h1 className="font-display text-3xl tracking-tight">Join PartnerLink</h1>
           <p className="mt-2 text-sm text-text-secondary">
             GIKI emails only (@giki.edu.pk). Professors stay pending until an admin approves them.
           </p>

@@ -46,9 +46,9 @@ export default function LoginPage() {
         }}
       />
       <motion.div variants={fadeUp} initial="hidden" animate="show" className="w-full max-w-md">
-        <Card elevated className="p-8">
+        <Card elevated className="glass-pill border-0 p-8 shadow-none">
           <div className="mb-6">
-            <h1 className="font-display text-2xl font-bold tracking-tight">Welcome back</h1>
+            <h1 className="font-display text-3xl tracking-tight">Welcome back</h1>
             <p className="mt-2 text-sm text-text-secondary">
               Sign in with your GIKI account to continue matching.
             </p>

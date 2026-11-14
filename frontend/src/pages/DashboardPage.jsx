@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Compass, ShieldCheck, Sparkles } from 'lucide-react';
 import Button from '../components/common/Button.jsx';
 import Card from '../components/common/Card.jsx';
 import PersonCard from '../components/common/PersonCard.jsx';
 import Badge from '../components/common/Badge.jsx';
+import BarRaceChart from '../components/viz/BarRaceChart.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../services/api.js';
 import { ROUTES } from '../routes/paths.js';
@@ -23,20 +24,31 @@ function StudentDashboard({ student }) {
   const needsProfile =
     !student?.skills?.length || !student?.desired_domains?.length || student?.cgpa == null;
 
+  const raceData = useMemo(
+    () =>
+      recs.map((row, i) => ({
+        id: row.student.id,
+        label: row.student.name.split(' ')[0],
+        value: Math.round(row.similarity_score * 100),
+        color: /** @type {1|2|3|4|5} */ ((i % 5) + 1),
+      })),
+    [recs],
+  );
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <header>
-        <p className="text-sm font-medium text-primary">Student workspace</p>
-        <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">
+        <p className="eyebrow">Student workspace</p>
+        <h1 className="mt-2 font-display text-4xl tracking-tight">
           Hi {student?.name?.split(' ')[0] || 'there'}
         </h1>
         <p className="mt-2 max-w-2xl text-text-secondary">
-          Ranked peer recommendations are computed from skill overlap, shared research domains, and CGPA fit.
+          Ranked peer recommendations from skill overlap, shared research domains, and CGPA fit.
         </p>
       </header>
 
       {needsProfile && (
-        <Card className="border-primary/30 bg-primary/5 p-5">
+        <div className="glass-pill p-5">
           <p className="font-medium">Complete your profile to improve matches</p>
           <p className="mt-1 text-sm text-text-secondary">
             Add CGPA, skills, and desired FYP domains so the engine can rank compatible teammates.
@@ -44,21 +56,34 @@ function StudentDashboard({ student }) {
           <Button to={ROUTES.PROFILE} size="sm" className="mt-4" icon={Sparkles}>
             Edit profile
           </Button>
-        </Card>
+        </div>
+      )}
+
+      {raceData.length > 0 && (
+        <div className="glass-pill p-5 sm:p-6">
+          <BarRaceChart
+            data={raceData}
+            topN={Math.min(6, raceData.length)}
+            caption="Best matches"
+            period="Live"
+            formatValue={(v) => `${v}%`}
+            max={100}
+          />
+        </div>
       )}
 
       <section>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="font-display text-xl font-semibold">Top recommendations</h2>
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <h2 className="font-display text-2xl tracking-tight">Top recommendations</h2>
           <Button to={ROUTES.DISCOVERY} variant="secondary" size="sm" icon={Compass}>
             Browse directory
           </Button>
         </div>
         {error && <p className="text-sm text-error">{error}</p>}
         {!error && recs.length === 0 && (
-          <Card className="p-6 text-sm text-text-muted">No recommendations yet. Update your profile and check back.</Card>
+          <p className="text-sm text-text-muted">No recommendations yet. Update your profile and check back.</p>
         )}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {recs.map(({ student: peer, similarity_score }) => (
             <PersonCard
               key={peer.id}

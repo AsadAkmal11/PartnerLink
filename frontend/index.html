@@ -5,28 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PartnerLink — GIKI FYP Partner Discovery</title>
     <meta name="description" content="Discover compatible Final Year Project partners and faculty at GIKI, matched by skills, interests and academic goals." />
-    <meta name="theme-color" content="#0A0A0A" />
+    <meta name="theme-color" content="#07070A" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <!-- Apply the saved theme before first paint to avoid a flash of the wrong theme -->
     <script>
-      (function () {
-        var theme = 'dark';
-        try {
-          var saved = localStorage.getItem('partnerlink-theme');
-          if (saved === 'light' || saved === 'dark') theme = saved;
-        } catch (e) {}
-        var root = document.documentElement;
-        root.setAttribute('data-theme', theme);
-        root.style.colorScheme = theme;
-        var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', theme === 'light' ? '#F8FAFC' : '#0A0A0A');
-      })();
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.colorScheme = 'dark';
     </script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>

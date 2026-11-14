@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import PersonCard from '../components/common/PersonCard.jsx';
-import Card from '../components/common/Card.jsx';
 import { api } from '../services/api.js';
 
 export default function DiscoveryPage() {
@@ -42,7 +41,7 @@ export default function DiscoveryPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Discovery</h1>
+        <h1 className="font-display text-4xl tracking-tight">Discovery</h1>
         <p className="mt-2 text-text-secondary">
           Filter GIKI peers by skills and research domains, or find approved faculty supervisors.
         </p>
@@ -54,8 +53,8 @@ export default function DiscoveryPage() {
             key={value}
             type="button"
             onClick={() => setTab(value)}
-            className={`rounded-full px-4 py-2 text-sm font-medium capitalize ${
-              tab === value ? 'bg-primary text-on-primary' : 'border border-border text-text-muted'
+            className={`rounded-[10px] px-4 py-2 text-sm font-medium capitalize ${
+              tab === value ? 'bg-primary text-on-primary' : 'glass-pill text-text-muted'
             }`}
           >
             {value}
@@ -63,28 +62,28 @@ export default function DiscoveryPage() {
         ))}
       </div>
 
-      <Card className="grid gap-3 p-4 sm:grid-cols-3">
+      <div className="glass-pill grid gap-3 p-4 sm:grid-cols-3">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search name or program"
-          className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+          className="rounded-[10px] border border-border/60 bg-background/50 px-3 py-2.5 text-sm outline-none focus:border-primary"
         />
         {tab === 'students' && (
           <input
             value={skill}
             onChange={(e) => setSkill(e.target.value)}
             placeholder="Filter by skill"
-            className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+            className="rounded-[10px] border border-border/60 bg-background/50 px-3 py-2.5 text-sm outline-none focus:border-primary"
           />
         )}
         <input
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           placeholder="Filter by research domain"
-          className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+          className="rounded-[10px] border border-border/60 bg-background/50 px-3 py-2.5 text-sm outline-none focus:border-primary"
         />
-      </Card>
+      </div>
 
       {loading && <p className="text-sm text-text-muted">Loading…</p>}
       {error && <p className="text-sm text-error">{error}</p>}
@@ -106,7 +105,7 @@ export default function DiscoveryPage() {
             </PersonCard>
           ))}
           {!loading && students.length === 0 && (
-            <Card className="p-6 text-sm text-text-muted sm:col-span-2 lg:col-span-3">No students match these filters.</Card>
+            <p className="text-sm text-text-muted sm:col-span-2 lg:col-span-3">No students match these filters.</p>
           )}
         </div>
       ) : (
@@ -122,9 +121,9 @@ export default function DiscoveryPage() {
             </PersonCard>
           ))}
           {!loading && professors.length === 0 && (
-            <Card className="p-6 text-sm text-text-muted sm:col-span-2 lg:col-span-3">
+            <p className="text-sm text-text-muted sm:col-span-2 lg:col-span-3">
               No approved faculty match these filters.
-            </Card>
+            </p>
           )}
         </div>
       )}

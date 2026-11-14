@@ -11,7 +11,7 @@ export default function FinalCTA() {
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <motion.div
           variants={scaleIn}
-          className="gold-hairline relative isolate overflow-hidden rounded-[2rem] border border-primary/25 bg-surface-elevated px-6 py-16 text-center shadow-elevated sm:px-12 sm:py-20"
+          className="glass-pill relative isolate overflow-hidden rounded-[1.75rem] px-6 py-16 text-center sm:px-12 sm:py-20"
         >
           {/* Restrained gold light */}
           <div

@@ -1,7 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Compass, LayoutDashboard, LogOut, ShieldCheck, UserRound } from 'lucide-react';
 import Logo from '../common/Logo.jsx';
-import ThemeToggle from '../common/ThemeToggle.jsx';
 import Button from '../common/Button.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { ROUTES } from '../../routes/paths.js';
@@ -47,7 +46,6 @@ export default function AppShell() {
             <span className="hidden text-sm text-text-muted sm:inline">
               {user?.name} · <span className="capitalize text-primary">{user?.role}</span>
             </span>
-            <ThemeToggle />
             <Button
               variant="ghost"
               size="sm"

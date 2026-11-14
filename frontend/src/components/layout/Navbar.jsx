@@ -5,7 +5,6 @@ import { ArrowRight, Menu, X } from 'lucide-react';
 import Logo from '../common/Logo.jsx';
 import Button from '../common/Button.jsx';
 import SectionLink from '../common/SectionLink.jsx';
-import ThemeToggle from '../common/ThemeToggle.jsx';
 import { useActiveSection } from '../../hooks/useActiveSection.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { NAV_ITEMS, NAV_SECTION_IDS } from '../../data/landing.js';
@@ -78,7 +77,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop links */}
-          <ul className="hidden items-center gap-1 rounded-full border border-border/70 bg-surface/40 p-1 md:flex">
+                  <ul className="glass-pill hidden items-center gap-1 p-1 md:flex">
             {NAV_ITEMS.map(({ id, label }) => {
               const isActive = active === id;
               return (
@@ -105,7 +104,6 @@ export default function Navbar() {
           </ul>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             {!user && (
               <Button to={ROUTES.LOGIN} size="sm" variant="ghost" className="hidden sm:inline-flex">
                 Sign in
