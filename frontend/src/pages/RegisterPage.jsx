@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { Button, ChipSelect, Field, Plates, Segmented } from '../components/ui.jsx';
+import { Button, ChipSelect, Field, Mascot, Paint, Script, Segmented } from '../components/ui.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../services/api.js';
 import { ROUTES } from '../routes/paths.js';
@@ -70,33 +70,27 @@ export default function RegisterPage() {
 
   return (
     <div className="auth">
-      <div className="auth-art">
-        <p className="label kicker rise">Register · @giki.edu.pk only</p>
-        <div className="rise" style={{ '--d': 80 }}>
-          {student ? (
-            <Plates>
-              Join the
-              <br />
-              line-up.
-            </Plates>
-          ) : (
-            <Plates>
-              Supervise
-              <br />
-              the best.
-            </Plates>
-          )}
-        </div>
-        <p className="lead rise" style={{ '--d': 160 }}>
+      <div className="auth-art" key={role}>
+        <span className="hud rise">Sc. 00 — Register · @giki.edu.pk only</span>
+        <Script text={student ? 'pull up a chair' : 'for supervisors'} className="s-lg s-peach" seed={student ? 71 : 72} />
+        <Paint size="t-page" d={120}>
+          {student ? 'Join the\nline-up.' : 'Supervise\nthe best.'}
+        </Paint>
+        <p className="lead rise" style={{ '--d': 300 }}>
           {student
             ? 'Create your profile in minutes. Add your skills and target domains afterwards and the engine starts ranking teammates straight away.'
             : 'Register with your department and research domains. Your listing stays pending until an admin approves it, so students only ever see verified faculty.'}
         </p>
+        <Mascot d={700} />
       </div>
 
-      <form className="card form rise" style={{ '--d': 200 }} onSubmit={onSubmit}>
-        <div className="section-head" style={{ marginBottom: 0 }}>
-          <p className="label">01 — Pick a role</p>
+      <form className="cel form rise" style={{ '--d': 200 }} onSubmit={onSubmit}>
+        <span className="cel-tl hud">New account</span>
+        <span className="cel-no hud">{student ? 'Student' : 'Faculty'}</span>
+        <div className="callout">
+          <span className="legend" style={{ margin: 0 }}>
+            I am a
+          </span>
           <Segmented
             label="Account type"
             value={role}
@@ -171,7 +165,7 @@ export default function RegisterPage() {
             <fieldset>
               <legend className="legend">Research domains</legend>
               <ChipSelect
-                tone="blue"
+                tone="cyan"
                 options={domains?.filter((d) => d.kind === 'research')}
                 selected={form.domain_ids}
                 onToggle={toggleDomain}
@@ -185,7 +179,7 @@ export default function RegisterPage() {
             {error}
           </p>
         )}
-        <Button type="submit" variant="solid" size="lg" block disabled={submitting}>
+        <Button type="submit" variant="hot" size="lg" block disabled={submitting} arrow={!submitting}>
           {submitting ? 'Creating account…' : student ? 'Create student account' : 'Request faculty listing'}
         </Button>
         <p className="muted" style={{ fontSize: 15 }}>

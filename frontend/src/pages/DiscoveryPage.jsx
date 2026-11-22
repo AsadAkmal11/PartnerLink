@@ -51,7 +51,7 @@ export default function DiscoveryPage() {
 
   return (
     <>
-      <PageHead label="02 — Discovery" title="The directory.">
+      <PageHead scene={2} meta="Discovery" script="who is out there" title="The directory.">
         {isFaculty
           ? 'Browse GIKI students by skill and research interest, and reach out to the ones you want on your projects.'
           : 'Filter GIKI peers by skill and research domain, or find an approved faculty supervisor and the projects they are offering.'}
@@ -67,7 +67,7 @@ export default function DiscoveryPage() {
             { value: 'faculty', label: 'Faculty' },
           ]}
         />
-        <p className="label" aria-live="polite">
+        <p className="hud" aria-live="polite">
           {loading ? 'Searching…' : `${list.length} ${tab === 'students' ? 'students' : 'professors'}`}
         </p>
       </div>

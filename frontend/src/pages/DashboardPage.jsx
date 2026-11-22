@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Button, INKS, PageHead, PersonCard, Rule, Stamp } from '../components/ui.jsx';
+import { ACCENTS, Button, PageHead, PersonCard, Rule, SectionHead, Stamp, Steps } from '../components/ui.jsx';
 import ProjectCard from '../components/ProjectCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../services/api.js';
 import { ROUTES } from '../routes/paths.js';
 
 const firstName = (n) => n?.split(' ')[0] || 'there';
+const BAR_INKS = ['var(--paint)', ...ACCENTS.slice(1)];
 
 function StudentDashboard({ student }) {
   const [recs, setRecs] = useState(null);
@@ -29,45 +30,48 @@ function StudentDashboard({ student }) {
       });
   }, []);
 
-  const needsProfile = !student?.skills?.length || !student?.desired_domains?.length || student?.cgpa == null;
+  const hasSkills = Boolean(student?.skills?.length);
+  const hasDomains = Boolean(student?.desired_domains?.length);
+  const hasCgpa = student?.cgpa != null;
+  const needsProfile = !hasSkills || !hasDomains || !hasCgpa;
+  const done = [hasCgpa, hasSkills, hasDomains].filter(Boolean).length;
   const best = recs?.[0]?.similarity_score;
 
   return (
     <>
-      <PageHead label="01 — Student workspace" title={`Hi, ${firstName(student?.name)}.`}>
-        Ranked teammates from skill overlap, shared research domains and CGPA fit. Scores refresh every time a
-        profile changes.
+      <PageHead scene={1} meta="Student workspace" script="hello there," title={`Hi, ${firstName(student?.name)}.`}>
+        Ranked teammates from skill overlap, shared research domains and CGPA fit. Scores refresh every time a profile
+        changes.
       </PageHead>
 
-      <div className="stats rise" style={{ '--d': 160 }}>
+      <div className="stats rise" style={{ '--d': 360 }}>
         <div className="stat">
-          <span className="label">Matches</span>
-          <b style={{ '--s': 'var(--pink)' }}>{recs ? recs.length : '—'}</b>
+          <span className="hud">Matches</span>
+          <b className="hotnum">{recs ? recs.length : '—'}</b>
         </div>
         <div className="stat">
-          <span className="label">Best fit</span>
-          <b style={{ '--s': 'var(--blue)' }}>{best != null ? `${Math.round(best * 100)}%` : '—'}</b>
+          <span className="hud">Best fit</span>
+          <b className="cyannum">{best != null ? `${Math.round(best * 100)}%` : '—'}</b>
         </div>
         <div className="stat">
-          <span className="label">Your skills</span>
+          <span className="hud">Your skills</span>
           <b>{student?.skills?.length ?? 0}</b>
         </div>
         <div className="stat">
-          <span className="label">CGPA</span>
-          <b>{student?.cgpa != null ? student.cgpa.toFixed(2) : '—'}</b>
+          <span className="hud">CGPA</span>
+          <b>{hasCgpa ? student.cgpa.toFixed(2) : '—'}</b>
         </div>
       </div>
 
       {needsProfile && (
-        <section className="section">
-          <div className="card card-pink callout rise" style={{ '--d': 220 }}>
-            <div>
-              <p className="label">Profile incomplete</p>
-              <p className="h3" style={{ marginTop: 8 }}>
-                Add CGPA, skills and target domains to sharpen your matches.
-              </p>
+        <section className="section" style={{ marginTop: 28 }}>
+          <div className="cel cel-hot callout rise" style={{ '--d': 420 }}>
+            <span className="cel-tl hud">Still in rough</span>
+            <div style={{ display: 'grid', gap: 12 }}>
+              <p className="h3">Add CGPA, skills and target domains to sharpen your matches.</p>
+              <Steps items={['CGPA', 'Skills', 'Domains', 'Matched']} at={done} />
             </div>
-            <Button to={ROUTES.PROFILE} variant="solid">
+            <Button to={ROUTES.PROFILE} variant="hot" arrow>
               Finish profile
             </Button>
           </div>
@@ -77,20 +81,16 @@ function StudentDashboard({ student }) {
       {recs?.length > 0 && (
         <section className="section">
           <Rule />
-          <div className="section-head">
-            <div>
-              <p className="label">02 — Score ruler</p>
-              <h2 className="h-display h2" style={{ marginTop: 12 }}>
-                Who fits best
-              </h2>
-            </div>
-          </div>
+          <SectionHead script="score ruler" title="Who fits best" seed={81} />
           <div className="ruler">
             {recs.slice(0, 6).map(({ student: peer, similarity_score }, i) => (
               <div className="bar" key={peer.id}>
                 <span className="bar-name">{peer.name}</span>
                 <span className="bar-track" aria-hidden="true">
-                  <i className="bar-fill" style={{ '--w': `${Math.max(4, similarity_score * 100)}%`, '--c': INKS[i % INKS.length], '--n': i }} />
+                  <i
+                    className="bar-fill"
+                    style={{ '--w': `${Math.max(4, similarity_score * 100)}%`, '--c': BAR_INKS[i % BAR_INKS.length], '--n': i }}
+                  />
                 </span>
                 <span className="bar-v">{Math.round(similarity_score * 100)}%</span>
               </div>
@@ -101,15 +101,11 @@ function StudentDashboard({ student }) {
 
       <section className="section">
         <Rule />
-        <div className="section-head">
-          <div>
-            <p className="label">03 — Recommendations</p>
-            <h2 className="h-display h2" style={{ marginTop: 12 }}>
-              Your top teammates
-            </h2>
-          </div>
-          <Button to={ROUTES.DISCOVERY}>Browse directory</Button>
-        </div>
+        <SectionHead script="recommended for you" title="Your top teammates" seed={82}>
+          <Button to={ROUTES.DISCOVERY} arrow>
+            Browse directory
+          </Button>
+        </SectionHead>
         {recs === null && <p className="loading">Ranking your matches</p>}
         {error && <p className="err">{error}</p>}
         {recs && !error && recs.length === 0 && (
@@ -144,15 +140,11 @@ function StudentDashboard({ student }) {
       {offers.length > 0 && (
         <section className="section">
           <Rule />
-          <div className="section-head">
-            <div>
-              <p className="label">04 — Projects on offer</p>
-              <h2 className="h-display h2" style={{ marginTop: 12 }}>
-                Supervisors want you
-              </h2>
-            </div>
-            <Button to={ROUTES.PROJECTS}>All {offers.length} projects</Button>
-          </div>
+          <SectionHead script="projects on offer" title="Supervisors want you" seed={83}>
+            <Button to={ROUTES.PROJECTS} arrow>
+              All {offers.length} projects
+            </Button>
+          </SectionHead>
           <ul className="grid-3">
             {offers.slice(0, 3).map((p, i) => (
               <ProjectCard key={p.id} project={p} index={i} />
@@ -177,20 +169,21 @@ function ProfessorDashboard({ professor }) {
 
   return (
     <>
-      <PageHead label="01 — Faculty workspace" title={`Welcome, ${firstName(professor?.name)}.`}>
+      <PageHead scene={1} meta="Faculty workspace" script="welcome back," title={`Hi, ${firstName(professor?.name)}.`}>
         Students only ever see approved faculty. Keep your research domains current so the right groups find you.
       </PageHead>
       <div className="grid-2">
-        <div className="card rise" style={{ '--d': 160 }}>
-          <div className="section-head">
-            <p className="label">Approval status</p>
+        <div className="cel rise" style={{ '--d': 360 }}>
+          <span className="cel-tl hud">Approval status</span>
+          <div className="callout" style={{ marginBottom: 14 }}>
+            <p className="h3">Your listing</p>
             <Stamp status={status} />
           </div>
-          <p className="lead">{copy}</p>
+          <p className="muted">{copy}</p>
         </div>
-        <div className="card rise" style={{ '--d': 220 }}>
-          <p className="label">Your research domains</p>
-          <div className="tags" style={{ margin: '18px 0 24px' }}>
+        <div className="cel cel-cyan rise" style={{ '--d': 420 }}>
+          <span className="cel-tl hud">Research domains</span>
+          <div className="tags" style={{ margin: '4px 0 24px' }}>
             {professor?.domains?.length ? (
               professor.domains.map((d) => (
                 <span key={d.id} className="tag tag-domain">
@@ -201,7 +194,7 @@ function ProfessorDashboard({ professor }) {
               <span className="muted">None added yet.</span>
             )}
           </div>
-          <Button to={ROUTES.PROFILE} variant="solid">
+          <Button to={ROUTES.PROFILE} variant="solid" arrow>
             Update faculty profile
           </Button>
         </div>
@@ -209,20 +202,14 @@ function ProfessorDashboard({ professor }) {
 
       <section className="section">
         <Rule />
-        <div className="section-head">
-          <div>
-            <p className="label">02 — Your projects</p>
-            <h2 className="h-display h2" style={{ marginTop: 12 }}>
-              {open.length ? `${open.length} on offer` : 'Nothing on offer yet'}
-            </h2>
-          </div>
+        <SectionHead script="your projects" title={open.length ? `${open.length} on offer` : 'Nothing on offer yet'} seed={84}>
           <div className="row-act">
             {status === 'APPROVED' && <Button to={ROUTES.DISCOVERY}>Browse students</Button>}
-            <Button to={ROUTES.PROJECTS} variant="solid">
+            <Button to={ROUTES.PROJECTS} variant="hot" arrow>
               {status === 'APPROVED' ? 'Post a project' : 'View projects'}
             </Button>
           </div>
-        </div>
+        </SectionHead>
         {status !== 'APPROVED' ? (
           <p className="empty">Once an admin approves you, you can post projects and browse student profiles.</p>
         ) : open.length === 0 ? (
@@ -251,28 +238,34 @@ function AdminDashboard() {
 
   return (
     <>
-      <PageHead label="01 — Admin workspace" title="Moderator desk.">
+      <PageHead scene={1} meta="Admin workspace" script="on duty today" title="Moderator desk.">
         Review faculty registrations and keep the directory trustworthy. Every decision is stored with who acted and
         when.
       </PageHead>
       <div className="grid-2">
-        <div className="card card-pink rise" style={{ '--d': 160 }}>
-          <p className="label">Pending faculty</p>
-          <p className="h-display" style={{ fontSize: 'clamp(90px, 11vw, 180px)', margin: '14px 0 22px' }}>
-            {pending ? pending.length : '—'}
+        <div className="cel cel-hot rise" style={{ '--d': 360 }}>
+          <span className="cel-tl hud">Pending faculty</span>
+          <p
+            className="paint"
+            style={{ fontSize: 'clamp(90px, 11vw, 170px)', margin: '6px 0 22px', display: 'block' }}
+          >
+            <span className="paint-fill">{pending ? pending.length : '—'}</span>
           </p>
-          <Button to={ROUTES.ADMIN} variant="solid">
+          <Button to={ROUTES.ADMIN} variant="hot" arrow>
             Open approvals
           </Button>
         </div>
-        <div className="card rise" style={{ '--d': 220 }}>
-          <p className="label">Directory</p>
-          <p className="lead" style={{ margin: '14px 0 24px' }}>
-            Browse every student and approved professor, with the same filters students use.
+        <div className="cel rise" style={{ '--d': 420 }}>
+          <span className="cel-tl hud">Directory</span>
+          <p className="h3" style={{ marginBottom: 12 }}>
+            Everyone, in one place.
+          </p>
+          <p className="muted" style={{ marginBottom: 24 }}>
+            Browse every student and approved professor, plus every project faculty are offering.
           </p>
           <div className="row-act">
             <Button to={ROUTES.DISCOVERY}>Browse discovery</Button>
-            <Button to={ROUTES.PROFILE}>Account profile</Button>
+            <Button to={ROUTES.PROJECTS}>All projects</Button>
           </div>
         </div>
       </div>

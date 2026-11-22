@@ -10,11 +10,14 @@ import ProjectsPage from './pages/ProjectsPage.jsx';
 import AdminApprovalsPage from './pages/AdminApprovalsPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import { ROUTES } from './routes/paths.js';
+import { Film } from './components/ui.jsx';
 
 export default function App() {
   return (
+    <>
+    <Film />
     <Routes>
-      {/* The landing component carries its own masthead and footer. */}
+      {/* The landing page carries its own masthead, footer and title-card intro. */}
       <Route path={ROUTES.HOME} element={<LandingPage />} />
 
       <Route element={<SiteLayout />}>
@@ -46,5 +49,6 @@ export default function App() {
         <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
       </Route>
     </Routes>
+    </>
   );
 }

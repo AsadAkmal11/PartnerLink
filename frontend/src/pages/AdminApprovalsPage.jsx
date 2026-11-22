@@ -40,7 +40,7 @@ export default function AdminApprovalsPage() {
 
   return (
     <>
-      <PageHead label="05 — Approvals" title="Faculty desk.">
+      <PageHead scene={5} meta="Approvals" script="faculty desk" title="Approvals.">
         Audit-backed workflow: every decision stores who acted and when. Students only see approved faculty.
       </PageHead>
 
@@ -56,7 +56,7 @@ export default function AdminApprovalsPage() {
             { value: '', label: 'All' },
           ]}
         />
-        <p className="label">{rows ? `${rows.length} requests` : 'Loading…'}</p>
+        <p className="hud">{rows ? `${rows.length} requests` : 'Loading…'}</p>
       </div>
 
       {error && <p className="err">{error}</p>}
@@ -66,7 +66,8 @@ export default function AdminApprovalsPage() {
       {rows?.length > 0 && (
         <ol className="rows" key={status}>
           {rows.map((row, i) => (
-            <li key={row.id} className="row" data-s={row.status} style={{ '--n': i }}>
+            <li key={row.id} className="cel row" data-s={row.status} style={{ '--n': i }}>
+              <span className="cel-tl hud">Req. {String(i + 1).padStart(2, '0')}</span>
               <div className="row-m">
                 <h3>{row.professor_name}</h3>
                 <span className="row-meta">
@@ -89,10 +90,10 @@ export default function AdminApprovalsPage() {
                 <Stamp status={row.status} />
                 {row.status === 'PENDING' && (
                   <div className="row-act">
-                    <Button size="sm" variant="solid" disabled={busyId === row.id} onClick={() => act(row.id, 'approve')}>
+                    <Button size="sm" variant="hot" disabled={busyId === row.id} onClick={() => act(row.id, 'approve')}>
                       Approve
                     </Button>
-                    <Button size="sm" disabled={busyId === row.id} onClick={() => act(row.id, 'reject')}>
+                    <Button size="sm" variant="danger" disabled={busyId === row.id} onClick={() => act(row.id, 'reject')}>
                       Reject
                     </Button>
                   </div>

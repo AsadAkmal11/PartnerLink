@@ -1,17 +1,21 @@
-import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { ROUTES } from '../routes/paths.js';
-import { Button, Colophon, Crops, inkFor, initials } from './ui.jsx';
-
-function Logo() {
-  return (
-    <Link to={ROUTES.HOME} className="logo" aria-label="PartnerLink home">
-      PARTNERLINK<sup>’26</sup>
-    </Link>
-  );
-}
+import { Brand, Button, accentFor, initials } from './ui.jsx';
 
 const navClass = ({ isActive }) => (isActive ? 'active' : undefined);
+
+export function Footer({ right }) {
+  return (
+    <footer className="foot">
+      <div className="wrap foot-in">
+        <Brand sub="Ghulam Ishaq Khan Institute" />
+        <span className="hud">{right || 'Topi, Swabi · Khyber Pakhtunkhwa'}</span>
+        <span className="hud">© {new Date().getFullYear()} PartnerLink</span>
+      </div>
+    </footer>
+  );
+}
 
 /** Public pages: sign in, register, 404. */
 export function SiteLayout() {
@@ -21,34 +25,37 @@ export function SiteLayout() {
       <a href="#main" className="skip">
         Skip to content
       </a>
-      <Crops />
       <header className="top">
-        <Logo />
-        <nav className="nav" aria-label="Primary">
-          <NavLink to={ROUTES.HOME} end className={navClass}>
-            Home
-          </NavLink>
-          <NavLink to={ROUTES.LOGIN} className={navClass}>
-            Sign in
-          </NavLink>
-          <NavLink to={ROUTES.REGISTER} className={navClass}>
-            Register
-          </NavLink>
-        </nav>
-        {user ? (
-          <Button to={ROUTES.DASHBOARD} variant="solid">
-            Open app
-          </Button>
-        ) : (
-          <Button to={ROUTES.REGISTER} variant="solid">
-            Get started
-          </Button>
-        )}
+        <div className="wrap top-in">
+          <Brand />
+          <nav className="nav" aria-label="Primary">
+            <NavLink to={ROUTES.HOME} end className={navClass}>
+              Home
+            </NavLink>
+            <NavLink to={ROUTES.LOGIN} className={navClass}>
+              Sign in
+            </NavLink>
+            <NavLink to={ROUTES.REGISTER} className={navClass}>
+              Register
+            </NavLink>
+          </nav>
+          <div className="top-r">
+            {user ? (
+              <Button to={ROUTES.DASHBOARD} variant="solid" size="sm" arrow>
+                Open app
+              </Button>
+            ) : (
+              <Button to={ROUTES.REGISTER} variant="solid" size="sm" arrow>
+                Get started
+              </Button>
+            )}
+          </div>
+        </div>
       </header>
       <main id="main">
         <Outlet />
       </main>
-      <Colophon />
+      <Footer />
     </div>
   );
 }
@@ -76,20 +83,21 @@ export function AppShell() {
       <a href="#main" className="skip">
         Skip to content
       </a>
-      <Crops />
-      <div>
-        <header className="top">
-          <Logo />
+      <header className="top">
+        <div className="wrap top-in">
+          <Brand />
           <nav className="nav" aria-label="Workspace">
             {navItems}
           </nav>
           <div className="top-r">
             <span className="who">
-              <span className="dot" style={{ '--c': inkFor(user?.name) }} aria-hidden="true">
+              <span className="avatar" style={{ '--c': accentFor(user?.name) }} aria-hidden="true">
                 {initials(user?.name)}
               </span>
               <span className="who-name">
-                <b>{user?.name}</b> · {user?.role}
+                <b>{user?.name}</b>
+                <br />
+                <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
               </span>
             </span>
             <Button
@@ -102,15 +110,15 @@ export function AppShell() {
               Log out
             </Button>
           </div>
-        </header>
+        </div>
         <nav className="subnav nav" aria-label="Workspace (compact)">
           {navItems}
         </nav>
-      </div>
+      </header>
       <main id="main" className="page">
         <Outlet />
       </main>
-      <Colophon right={user ? `Signed in as ${user.email}` : undefined} />
+      <Footer right={user ? `Signed in as ${user.email}` : undefined} />
     </div>
   );
 }

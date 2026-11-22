@@ -37,8 +37,9 @@ function ProjectForm({ initial, domains, onCancel, onSaved }) {
   }
 
   return (
-    <form className="card form rise" onSubmit={onSubmit}>
-      <p className="label">{editing ? 'Edit project' : 'Post a new project'}</p>
+    <form className="cel cel-hot form rise" onSubmit={onSubmit}>
+      <span className="cel-tl hud">{editing ? 'Edit project' : 'Post a new project'}</span>
+      <span className="cel-no hud">{editing ? 'Retake' : 'New scene'}</span>
       <div className="form-row">
         <Field label="Title">
           <input
@@ -76,7 +77,7 @@ function ProjectForm({ initial, domains, onCancel, onSaved }) {
       <fieldset>
         <legend className="legend">Research domains</legend>
         <ChipSelect
-          tone="blue"
+          tone="cyan"
           options={domains?.filter((d) => d.kind === 'research')}
           selected={form.domain_ids}
           onToggle={(id) => setForm((p) => ({ ...p, domain_ids: toggleIn(p.domain_ids, id) }))}
@@ -96,7 +97,7 @@ function ProjectForm({ initial, domains, onCancel, onSaved }) {
         </p>
       )}
       <div className="row-act">
-        <Button type="submit" variant="solid" disabled={saving}>
+        <Button type="submit" variant="hot" disabled={saving}>
           {saving ? 'Saving…' : editing ? 'Save changes' : 'Post project'}
         </Button>
         <Button onClick={onCancel}>Cancel</Button>
@@ -171,7 +172,7 @@ export default function ProjectsPage() {
 
   return (
     <>
-      <PageHead label="03 — Projects" title="On offer.">
+      <PageHead scene={3} meta="Projects" script="now casting" title="On offer.">
         {isFaculty
           ? 'Post the FYP projects you want to supervise. Students see every open project from approved faculty and can reach out directly.'
           : 'FYP projects faculty are offering right now. Find one that fits your group and contact the supervisor.'}
@@ -194,14 +195,14 @@ export default function ProjectsPage() {
               onSaved={afterSave}
             />
           ) : (
-            <div className="card card-pink callout rise">
+            <div className="cel cel-hot callout rise" style={{ '--d': 360 }}>
+              <span className="cel-tl hud">Supervising this year?</span>
               <div>
-                <p className="label">Supervising this year?</p>
-                <p className="h3" style={{ marginTop: 8 }}>
+                <p className="h3">
                   Post a project and let strong groups come to you.
                 </p>
               </div>
-              <Button variant="solid" onClick={() => {
+              <Button variant="hot" arrow onClick={() => {
                   setNotice('');
                   setEditing({});
                 }}>
@@ -226,12 +227,12 @@ export default function ProjectsPage() {
         ) : (
           <span />
         )}
-        <p className="label" aria-live="polite">
+        <p className="hud" aria-live="polite">
           {projects ? `${projects.length} ${projects.length === 1 ? 'project' : 'projects'}` : 'Loading…'}
         </p>
       </div>
 
-      <div className="filters rise" style={{ '--d': 180, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+      <div className="filters filters-2 rise" style={{ '--d': 180 }}>
         <Field label="Search">
           <input className="input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Title, topic or faculty name" />
         </Field>

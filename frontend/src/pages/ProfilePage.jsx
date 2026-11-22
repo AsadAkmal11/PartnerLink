@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, ChipSelect, Field, PageHead, Rule } from '../components/ui.jsx';
+import { Button, ChipSelect, Field, PageHead } from '../components/ui.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../services/api.js';
 
@@ -21,13 +21,11 @@ function Status({ error, message }) {
   return null;
 }
 
-function Block({ label, children }) {
+function Block({ label, no, children }) {
   return (
-    <section className="section" style={{ marginTop: 0 }}>
-      <Rule />
-      <p className="label" style={{ marginBottom: 20 }}>
-        {label}
-      </p>
+    <section className="cel">
+      <span className="cel-tl hud">{label}</span>
+      <span className="cel-no hud">Pass {no}</span>
       {children}
     </section>
   );
@@ -80,8 +78,8 @@ function StudentProfileForm({ student, onSaved }) {
   const research = domains?.filter((d) => d.kind === 'research');
 
   return (
-    <form onSubmit={onSubmit} className="form" style={{ gap: 48 }}>
-      <Block label="01 — The basics">
+    <form onSubmit={onSubmit} className="form" style={{ gap: 20 }}>
+      <Block label="The basics" no="01">
         <div className="form">
           <div className="form-row">
             <Field label="Name">
@@ -122,7 +120,7 @@ function StudentProfileForm({ student, onSaved }) {
         </div>
       </Block>
 
-      <Block label="02 — Skills you already have">
+      <Block label="Skills you already have" no="02">
         <ChipSelect
           options={skills}
           selected={form.skill_ids}
@@ -130,9 +128,9 @@ function StudentProfileForm({ student, onSaved }) {
         />
       </Block>
 
-      <Block label="03 — Domains you want to chase">
+      <Block label="Domains you want to chase" no="03">
         <ChipSelect
-          tone="blue"
+          tone="cyan"
           options={research}
           selected={form.desired_domain_ids}
           onToggle={(id) => setForm((p) => ({ ...p, desired_domain_ids: toggleIn(p.desired_domain_ids, id) }))}
@@ -141,7 +139,7 @@ function StudentProfileForm({ student, onSaved }) {
 
       <div className="callout">
         <Status error={error} message={message} />
-        <Button type="submit" variant="solid" size="lg" disabled={saving}>
+        <Button type="submit" variant="hot" size="lg" disabled={saving}>
           {saving ? 'Saving…' : 'Save profile'}
         </Button>
       </div>
@@ -187,8 +185,8 @@ function ProfessorProfileForm({ professor, onSaved }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="form" style={{ gap: 48 }}>
-      <Block label="01 — The basics">
+    <form onSubmit={onSubmit} className="form" style={{ gap: 20 }}>
+      <Block label="The basics" no="01">
         <div className="form">
           <div className="form-row">
             <Field label="Name">
@@ -207,9 +205,9 @@ function ProfessorProfileForm({ professor, onSaved }) {
           </Field>
         </div>
       </Block>
-      <Block label="02 — Research domains">
+      <Block label="Research domains" no="02">
         <ChipSelect
-          tone="blue"
+          tone="cyan"
           options={domains}
           selected={form.domain_ids}
           onToggle={(id) => setForm((p) => ({ ...p, domain_ids: toggleIn(p.domain_ids, id) }))}
@@ -217,7 +215,7 @@ function ProfessorProfileForm({ professor, onSaved }) {
       </Block>
       <div className="callout">
         <Status error={error} message={message} />
-        <Button type="submit" variant="solid" size="lg" disabled={saving}>
+        <Button type="submit" variant="hot" size="lg" disabled={saving}>
           {saving ? 'Saving…' : 'Save profile'}
         </Button>
       </div>
@@ -230,10 +228,10 @@ export default function ProfilePage() {
 
   return (
     <>
-      <PageHead label="04 — Profile" title="Your sheet.">
+      <PageHead scene={4} meta="Profile" script="your model sheet" title="Your sheet.">
         {user?.email} · <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
       </PageHead>
-      <div className="rise" style={{ '--d': 160, maxWidth: 1080 }}>
+      <div className="rise" style={{ '--d': 360, maxWidth: 1080 }}>
         {user?.role === 'student' && <StudentProfileForm student={student} onSaved={refresh} />}
         {user?.role === 'professor' && <ProfessorProfileForm professor={professor} onSaved={refresh} />}
         {user?.role === 'admin' && (

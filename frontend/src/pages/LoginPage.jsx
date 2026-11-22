@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Button, Field, Plates } from '../components/ui.jsx';
+import { Button, Field, Mascot, Paint, Script } from '../components/ui.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { ROUTES } from '../routes/paths.js';
 
@@ -32,21 +32,20 @@ export default function LoginPage() {
   return (
     <div className="auth">
       <div className="auth-art">
-        <p className="label kicker rise">Sign in · GIKI accounts only</p>
-        <div className="rise" style={{ '--d': 80 }}>
-          <Plates>
-            Welcome
-            <br />
-            back.
-          </Plates>
-        </div>
-        <p className="lead rise" style={{ '--d': 160 }}>
+        <span className="hud rise">Sc. 00 — Sign in · GIKI accounts only</span>
+        <Script text="good to see you" className="s-lg s-peach" seed={61} />
+        <Paint size="t-page" d={120}>
+          {'Welcome\nback.'}
+        </Paint>
+        <p className="lead rise" style={{ '--d': 300 }}>
           Your matches have been re-ranked since you left. Sign in to see who fits your team best.
         </p>
+        <Mascot d={700} />
       </div>
 
-      <form className="card form rise" style={{ '--d': 200 }} onSubmit={onSubmit}>
-        <p className="label">01 — Your account</p>
+      <form className="cel form rise" style={{ '--d': 200 }} onSubmit={onSubmit}>
+        <span className="cel-tl hud">Your account</span>
+        <span className="cel-no hud">Fr 0001</span>
         <Field label="GIKI email">
           <input
             className="input"
@@ -74,7 +73,7 @@ export default function LoginPage() {
             {error}
           </p>
         )}
-        <Button type="submit" variant="solid" size="lg" block disabled={submitting}>
+        <Button type="submit" variant="hot" size="lg" block disabled={submitting} arrow={!submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}
         </Button>
         <p className="muted" style={{ fontSize: 15 }}>
@@ -90,6 +89,9 @@ export default function LoginPage() {
           </span>
           <span>
             <b>aria.noor@giki.edu.pk</b> / student123
+          </span>
+          <span>
+            <b>faculty.a@giki.edu.pk</b> / prof123
           </span>
         </div>
       </form>
