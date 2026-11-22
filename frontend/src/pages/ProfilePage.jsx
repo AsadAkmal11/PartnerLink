@@ -1,33 +1,40 @@
 import { useEffect, useState } from 'react';
-import Button from '../components/common/Button.jsx';
-import Card from '../components/common/Card.jsx';
+import { Button, ChipSelect, Field, PageHead, Rule } from '../components/ui.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../services/api.js';
 
-function ChipSelect({ options, selected, onToggle }) {
+const toggleIn = (list, id) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+
+function Status({ error, message }) {
+  if (error)
+    return (
+      <p className="err" role="alert">
+        {error}
+      </p>
+    );
+  if (message)
+    return (
+      <p className="ok" role="status">
+        {message}
+      </p>
+    );
+  return null;
+}
+
+function Block({ label, children }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((opt) => {
-        const active = selected.includes(opt.id);
-        return (
-          <button
-            key={opt.id}
-            type="button"
-            onClick={() => onToggle(opt.id)}
-            className={`rounded-full px-3 py-1 text-xs font-medium ${
-              active ? 'bg-primary text-on-primary' : 'border border-border text-text-secondary'
-            }`}
-          >
-            {opt.name}
-          </button>
-        );
-      })}
-    </div>
+    <section className="section" style={{ marginTop: 0 }}>
+      <Rule />
+      <p className="label" style={{ marginBottom: 20 }}>
+        {label}
+      </p>
+      {children}
+    </section>
   );
 }
 
 function StudentProfileForm({ student, onSaved }) {
-  const [domains, setDomains] = useState([]);
+  const [domains, setDomains] = useState(null);
   const [form, setForm] = useState({
     name: student?.name || '',
     program: student?.program || '',
@@ -45,13 +52,6 @@ function StudentProfileForm({ student, onSaved }) {
     api.domains().then(setDomains).catch(() => setDomains([]));
   }, []);
 
-  function toggle(field, id) {
-    setForm((prev) => ({
-      ...prev,
-      [field]: prev[field].includes(id) ? prev[field].filter((x) => x !== id) : [...prev[field], id],
-    }));
-  }
-
   async function onSubmit(e) {
     e.preventDefault();
     setSaving(true);
@@ -67,7 +67,7 @@ function StudentProfileForm({ student, onSaved }) {
         skill_ids: form.skill_ids,
         desired_domain_ids: form.desired_domain_ids,
       });
-      setMessage('Profile saved. Matches will refresh.');
+      setMessage('Profile saved. Matches are being re-ranked.');
       await onSaved();
     } catch (err) {
       setError(err.message);
@@ -76,88 +76,81 @@ function StudentProfileForm({ student, onSaved }) {
     }
   }
 
-  const skills = domains.filter((d) => d.kind === 'skill');
-  const research = domains.filter((d) => d.kind === 'research');
+  const skills = domains?.filter((d) => d.kind === 'skill');
+  const research = domains?.filter((d) => d.kind === 'research');
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm">
-          <span className="mb-1.5 block text-text-muted">Name</span>
-          <input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2.5 outline-none focus:border-primary"
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1.5 block text-text-muted">Program</span>
-          <input
-            value={form.program}
-            onChange={(e) => setForm({ ...form, program: e.target.value })}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2.5 outline-none focus:border-primary"
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1.5 block text-text-muted">CGPA</span>
-          <input
-            type="number"
-            min="0"
-            max="4"
-            step="0.01"
-            value={form.cgpa}
-            onChange={(e) => setForm({ ...form, cgpa: e.target.value })}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2.5 outline-none focus:border-primary"
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1.5 block text-text-muted">Primary research domain</span>
-          <select
-            value={form.primary_domain_id}
-            onChange={(e) => setForm({ ...form, primary_domain_id: e.target.value })}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2.5 outline-none focus:border-primary"
-          >
-            <option value="">None</option>
-            {research.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <label className="block text-sm">
-        <span className="mb-1.5 block text-text-muted">Bio</span>
-        <textarea
-          rows={3}
-          value={form.bio}
-          onChange={(e) => setForm({ ...form, bio: e.target.value })}
-          className="w-full rounded-xl border border-border bg-background px-3 py-2.5 outline-none focus:border-primary"
-        />
-      </label>
-      <div>
-        <p className="mb-2 text-sm text-text-muted">Skills</p>
-        <ChipSelect options={skills} selected={form.skill_ids} onToggle={(id) => toggle('skill_ids', id)} />
-      </div>
-      <div>
-        <p className="mb-2 text-sm text-text-muted">Desired FYP domains</p>
+    <form onSubmit={onSubmit} className="form" style={{ gap: 48 }}>
+      <Block label="01 — The basics">
+        <div className="form">
+          <div className="form-row">
+            <Field label="Name">
+              <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            </Field>
+            <Field label="Program">
+              <input className="input" value={form.program} onChange={(e) => setForm({ ...form, program: e.target.value })} />
+            </Field>
+            <Field label="CGPA">
+              <input
+                className="input"
+                type="number"
+                min="0"
+                max="4"
+                step="0.01"
+                value={form.cgpa}
+                onChange={(e) => setForm({ ...form, cgpa: e.target.value })}
+              />
+            </Field>
+            <Field label="Primary research domain">
+              <select
+                className="input"
+                value={form.primary_domain_id}
+                onChange={(e) => setForm({ ...form, primary_domain_id: e.target.value })}
+              >
+                <option value="">None</option>
+                {research?.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+          <Field label="Bio · one line about what you want to build">
+            <textarea className="input" rows={3} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
+          </Field>
+        </div>
+      </Block>
+
+      <Block label="02 — Skills you already have">
         <ChipSelect
+          options={skills}
+          selected={form.skill_ids}
+          onToggle={(id) => setForm((p) => ({ ...p, skill_ids: toggleIn(p.skill_ids, id) }))}
+        />
+      </Block>
+
+      <Block label="03 — Domains you want to chase">
+        <ChipSelect
+          tone="blue"
           options={research}
           selected={form.desired_domain_ids}
-          onToggle={(id) => toggle('desired_domain_ids', id)}
+          onToggle={(id) => setForm((p) => ({ ...p, desired_domain_ids: toggleIn(p.desired_domain_ids, id) }))}
         />
+      </Block>
+
+      <div className="callout">
+        <Status error={error} message={message} />
+        <Button type="submit" variant="solid" size="lg" disabled={saving}>
+          {saving ? 'Saving…' : 'Save profile'}
+        </Button>
       </div>
-      {error && <p className="text-sm text-error">{error}</p>}
-      {message && <p className="text-sm text-success">{message}</p>}
-      <Button type="submit" disabled={saving}>
-        {saving ? 'Saving…' : 'Save profile'}
-      </Button>
     </form>
   );
 }
 
 function ProfessorProfileForm({ professor, onSaved }) {
-  const [domains, setDomains] = useState([]);
+  const [domains, setDomains] = useState(null);
   const [form, setForm] = useState({
     name: professor?.name || '',
     department: professor?.department || '',
@@ -194,54 +187,40 @@ function ProfessorProfileForm({ professor, onSaved }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm">
-          <span className="mb-1.5 block text-text-muted">Name</span>
-          <input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2.5 outline-none focus:border-primary"
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1.5 block text-text-muted">Department</span>
-          <input
-            value={form.department}
-            onChange={(e) => setForm({ ...form, department: e.target.value })}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2.5 outline-none focus:border-primary"
-          />
-        </label>
-      </div>
-      <label className="block text-sm">
-        <span className="mb-1.5 block text-text-muted">Bio</span>
-        <textarea
-          rows={3}
-          value={form.bio}
-          onChange={(e) => setForm({ ...form, bio: e.target.value })}
-          className="w-full rounded-xl border border-border bg-background px-3 py-2.5 outline-none focus:border-primary"
-        />
-      </label>
-      <div>
-        <p className="mb-2 text-sm text-text-muted">Research domains</p>
+    <form onSubmit={onSubmit} className="form" style={{ gap: 48 }}>
+      <Block label="01 — The basics">
+        <div className="form">
+          <div className="form-row">
+            <Field label="Name">
+              <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            </Field>
+            <Field label="Department">
+              <input
+                className="input"
+                value={form.department}
+                onChange={(e) => setForm({ ...form, department: e.target.value })}
+              />
+            </Field>
+          </div>
+          <Field label="Bio · your research in a line">
+            <textarea className="input" rows={3} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
+          </Field>
+        </div>
+      </Block>
+      <Block label="02 — Research domains">
         <ChipSelect
+          tone="blue"
           options={domains}
           selected={form.domain_ids}
-          onToggle={(id) =>
-            setForm((prev) => ({
-              ...prev,
-              domain_ids: prev.domain_ids.includes(id)
-                ? prev.domain_ids.filter((x) => x !== id)
-                : [...prev.domain_ids, id],
-            }))
-          }
+          onToggle={(id) => setForm((p) => ({ ...p, domain_ids: toggleIn(p.domain_ids, id) }))}
         />
+      </Block>
+      <div className="callout">
+        <Status error={error} message={message} />
+        <Button type="submit" variant="solid" size="lg" disabled={saving}>
+          {saving ? 'Saving…' : 'Save profile'}
+        </Button>
       </div>
-      {error && <p className="text-sm text-error">{error}</p>}
-      {message && <p className="text-sm text-success">{message}</p>}
-      <Button type="submit" disabled={saving}>
-        {saving ? 'Saving…' : 'Save profile'}
-      </Button>
     </form>
   );
 }
@@ -250,22 +229,17 @@ export default function ProfilePage() {
   const { user, student, professor, refresh } = useAuth();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <header>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Profile</h1>
-        <p className="mt-2 text-text-secondary">
-          {user?.email} · <span className="capitalize">{user?.role}</span>
-        </p>
-      </header>
-      <Card elevated className="p-6">
+    <>
+      <PageHead label="04 — Profile" title="Your sheet.">
+        {user?.email} · <span style={{ textTransform: 'capitalize' }}>{user?.role}</span>
+      </PageHead>
+      <div className="rise" style={{ '--d': 160, maxWidth: 1080 }}>
         {user?.role === 'student' && <StudentProfileForm student={student} onSaved={refresh} />}
         {user?.role === 'professor' && <ProfessorProfileForm professor={professor} onSaved={refresh} />}
         {user?.role === 'admin' && (
-          <p className="text-sm text-text-secondary">
-            Admin accounts manage faculty approvals. Use the Approvals panel to review pending professors.
-          </p>
+          <p className="empty">Admin accounts manage faculty approvals. Use the Approvals desk to review pending professors.</p>
         )}
-      </Card>
-    </div>
+      </div>
+    </>
   );
 }

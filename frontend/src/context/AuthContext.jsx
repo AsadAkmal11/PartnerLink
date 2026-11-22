@@ -25,8 +25,9 @@ export function AuthProvider({ children }) {
       const data = await api.me();
       applyMe(data);
       return data;
-    } catch {
-      clearToken();
+    } catch (err) {
+      // Only a rejected token ends the session; a backend that is briefly down should not.
+      if (err.status === 401 || err.status === 403) clearToken();
       applyMe(null);
       return null;
     } finally {

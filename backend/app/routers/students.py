@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import require_directory_access
 from app.models import Student, StudentDomain, User
 from app.schemas import StudentProfileOut
 from app.serializers import student_profile_out
@@ -17,7 +17,7 @@ def list_students(
     skill: str | None = Query(default=None, description="Skill domain name"),
     domain: str | None = Query(default=None, description="Desired or primary research domain name"),
     db: Session = Depends(get_db),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_directory_access),
 ):
     students = (
         db.execute(

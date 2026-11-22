@@ -1,5 +1,12 @@
-from app.models import ApprovalStatus, DomainLinkType, Professor, Student, User
-from app.schemas import DomainOut, ProfessorProfileOut, StudentProfileOut, UserOut
+from app.models import ApprovalStatus, DomainLinkType, Professor, Project, ProjectStatus, Student, User
+from app.schemas import (
+    DomainOut,
+    ProfessorProfileOut,
+    ProjectOut,
+    ProjectProfessorOut,
+    StudentProfileOut,
+    UserOut,
+)
 
 
 def user_out(user: User) -> UserOut:
@@ -37,8 +44,33 @@ def student_profile_out(student: Student) -> StudentProfileOut:
     )
 
 
-def professor_profile_out(professor: Professor) -> ProfessorProfileOut:
+def project_out(project: Project) -> ProjectOut:
+    linked = [link.domain for link in project.domains if link.domain is not None]
+    prof = project.professor
+    return ProjectOut(
+        id=project.id,
+        title=project.title,
+        summary=project.summary,
+        team_size=project.team_size,
+        status=project.status.value,
+        domains=[DomainOut.model_validate(d) for d in linked if d.kind != "skill"],
+        skills=[DomainOut.model_validate(d) for d in linked if d.kind == "skill"],
+        professor=ProjectProfessorOut(
+            id=prof.id,
+            name=prof.user.name,
+            email=prof.user.email,
+            department=prof.department,
+        ),
+        created_at=project.created_at,
+        updated_at=project.updated_at,
+    )
+
+
+def professor_profile_out(professor: Professor, *, open_projects_only: bool = False) -> ProfessorProfileOut:
     status = professor.approval.status if professor.approval else ApprovalStatus.PENDING
+    projects = [
+        p for p in professor.projects if not open_projects_only or p.status == ProjectStatus.OPEN
+    ]
     return ProfessorProfileOut(
         id=professor.id,
         user_id=professor.user_id,
@@ -49,4 +81,5 @@ def professor_profile_out(professor: Professor) -> ProfessorProfileOut:
         domains=[DomainOut.model_validate(link.domain) for link in professor.domains if link.domain],
         approval_status=status.value,
         approval_note=professor.approval.note if professor.approval else None,
+        projects=[project_out(p) for p in projects],
     )

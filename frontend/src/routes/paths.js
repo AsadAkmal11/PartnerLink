@@ -7,6 +7,7 @@ export const ROUTES = {
   REGISTER: '/register',
   DASHBOARD: '/app',
   DISCOVERY: '/app/discovery',
+  PROJECTS: '/app/projects',
   PROFILE: '/app/profile',
   ADMIN: '/app/admin',
 };

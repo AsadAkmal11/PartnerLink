@@ -1,43 +1,31 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import Hero from '../components/landing/Hero.jsx';
-import Features from '../components/landing/Features.jsx';
-import HowItWorks from '../components/landing/HowItWorks.jsx';
-import DiscoveryPreview from '../components/landing/DiscoveryPreview.jsx';
-import FacultyPreview from '../components/landing/FacultyPreview.jsx';
-import FinalCTA from '../components/landing/FinalCTA.jsx';
+import { useNavigate } from 'react-router-dom';
+import PartnerLinkLanding from '../landing/PartnerLinkLanding.tsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { ROUTES } from '../routes/paths.js';
 
 export default function LandingPage() {
-  const { hash } = useLocation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // When arriving from another route (e.g. /#features), scroll to the section
-  // once it has rendered. Same-page anchors are handled natively by the browser.
-  useEffect(() => {
-    if (!hash) return undefined;
-    const el = document.getElementById(decodeURIComponent(hash.slice(1)));
-    if (!el) return undefined;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let cancelled = false;
-    // Wait for web fonts so text reflow doesn't move the target mid-scroll.
-    const fontsReady = document.fonts?.ready ?? Promise.resolve();
-    fontsReady.then(() => {
-      if (!cancelled) {
-        requestAnimationFrame(() => el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }));
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [hash]);
+  // The landing renders plain anchors; send in-app paths through the router.
+  function onClick(e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target.closest?.('a[href]');
+    const href = a?.getAttribute('href');
+    if (!href || !href.startsWith('/')) return;
+    e.preventDefault();
+    navigate(href);
+  }
 
   return (
-    <>
-      <Hero />
-      <Features />
-      <HowItWorks />
-      <DiscoveryPreview />
-      <FacultyPreview />
-      <FinalCTA />
-    </>
+    <div onClick={onClick}>
+      <PartnerLinkLanding
+        fontHref={null}
+        ctaHref={user ? ROUTES.DASHBOARD : ROUTES.REGISTER}
+        ctaLabel={user ? 'Open app' : 'Get started'}
+        signInHref={user ? ROUTES.DASHBOARD : ROUTES.LOGIN}
+        signInLabel={user ? 'Dashboard' : 'Sign in'}
+      />
+    </div>
   );
 }

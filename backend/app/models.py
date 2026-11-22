@@ -7,6 +7,7 @@ from sqlalchemy import (
     Enum,
     Float,
     ForeignKey,
+    Integer,
     String,
     Text,
     UniqueConstraint,
@@ -39,6 +40,11 @@ class ApprovalStatus(str, enum.Enum):
     PENDING = "PENDING"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
+
+
+class ProjectStatus(str, enum.Enum):
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
 
 
 class User(Base):
@@ -112,6 +118,11 @@ class Professor(Base):
         uselist=False,
         cascade="all, delete-orphan",
     )
+    projects: Mapped[list["Project"]] = relationship(
+        back_populates="professor",
+        cascade="all, delete-orphan",
+        order_by="Project.created_at.desc()",
+    )
 
 
 class ProfessorDomain(Base):
@@ -158,3 +169,38 @@ class ProfessorApproval(Base):
 
     professor: Mapped[Professor] = relationship(back_populates="approval")
     admin: Mapped[User | None] = relationship()
+
+
+class Project(Base):
+    """An FYP project a faculty member is offering to students."""
+
+    __tablename__ = "projects"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_uuid)
+    professor_id: Mapped[str] = mapped_column(ForeignKey("professors.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(160), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    team_size: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    status: Mapped[ProjectStatus] = mapped_column(Enum(ProjectStatus), default=ProjectStatus.OPEN, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+    professor: Mapped[Professor] = relationship(back_populates="projects")
+    domains: Mapped[list["ProjectDomain"]] = relationship(
+        back_populates="project",
+        cascade="all, delete-orphan",
+    )
+
+
+class ProjectDomain(Base):
+    """Research areas and wanted skills for a project (told apart by Domain.kind)."""
+
+    __tablename__ = "project_domains"
+    __table_args__ = (UniqueConstraint("project_id", "domain_id", name="uq_project_domain"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_uuid)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"))
+    domain_id: Mapped[str] = mapped_column(ForeignKey("domains.id", ondelete="CASCADE"))
+
+    project: Mapped[Project] = relationship(back_populates="domains")
+    domain: Mapped[Domain] = relationship()

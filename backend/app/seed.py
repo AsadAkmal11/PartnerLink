@@ -9,6 +9,8 @@ from app.models import (
     Professor,
     ProfessorApproval,
     ProfessorDomain,
+    Project,
+    ProjectDomain,
     Student,
     StudentDomain,
     User,
@@ -262,5 +264,58 @@ def seed_database(db: Session) -> None:
             )
         )
 
+    db.flush()
+    _seed_projects(db, domains)
+
     db.commit()
     recompute_all_matches(db)
+
+
+DEMO_PROJECTS = [
+    {
+        "faculty": "faculty.a@giki.edu.pk",
+        "title": "Crop disease detection from drone imagery",
+        "summary": "Train a vision model that flags leaf blight and rust in wheat fields around Swabi from low-altitude drone photos, then ship it as a lightweight field app for farmers.",
+        "team_size": 3,
+        "domains": ["Computer Vision", "Machine Learning"],
+        "skills": ["Python", "PyTorch", "OpenCV"],
+    },
+    {
+        "faculty": "faculty.a@giki.edu.pk",
+        "title": "Chest X-ray triage assistant",
+        "summary": "Build and evaluate a model that ranks chest X-rays by urgency for overloaded radiology queues, with saliency maps so doctors can see why a scan was flagged.",
+        "team_size": 4,
+        "domains": ["Computer Vision", "Machine Learning"],
+        "skills": ["Python", "PyTorch"],
+    },
+    {
+        "faculty": "faculty.b@giki.edu.pk",
+        "title": "Low-power campus air-quality mesh",
+        "summary": "Design solar-powered sensor nodes that measure PM2.5 and CO2 across campus, talk over a LoRa mesh, and feed a live dashboard for the facilities office.",
+        "team_size": 3,
+        "domains": ["Embedded Systems", "Robotics"],
+        "skills": ["C/C++", "Arduino", "PCB Design"],
+    },
+]
+
+
+def _seed_projects(db: Session, domains: dict[str, Domain]) -> None:
+    """Demo projects, added only while the projects table is completely empty."""
+    if db.execute(select(Project.id).limit(1)).first():
+        return
+    for item in DEMO_PROJECTS:
+        professor = db.execute(
+            select(Professor).join(User, Professor.user_id == User.id).where(User.email == item["faculty"])
+        ).scalar_one_or_none()
+        if not professor:
+            continue
+        project = Project(
+            professor_id=professor.id,
+            title=item["title"],
+            summary=item["summary"],
+            team_size=item["team_size"],
+        )
+        db.add(project)
+        db.flush()
+        for name in item["domains"] + item["skills"]:
+            db.add(ProjectDomain(project_id=project.id, domain_id=domains[name].id))

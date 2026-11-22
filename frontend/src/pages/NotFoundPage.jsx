@@ -1,38 +1,26 @@
-import { motion } from 'motion/react';
-import { Compass, Home } from 'lucide-react';
-import Button from '../components/common/Button.jsx';
-import BackgroundGlow from '../components/landing/BackgroundGlow.jsx';
-import { fadeUp, stagger } from '../lib/motion.js';
+import { Button, Plates } from '../components/ui.jsx';
 import { ROUTES } from '../routes/paths.js';
 
 export default function NotFoundPage() {
   return (
-    <section className="relative isolate flex min-h-[80vh] items-center overflow-hidden px-5 pb-20 pt-36">
-      <BackgroundGlow />
-      <motion.div
-        variants={stagger(0.1)}
-        initial="hidden"
-        animate="show"
-        className="mx-auto flex max-w-xl flex-col items-center text-center"
-      >
-        <motion.span variants={fadeUp} className="font-display text-8xl font-extrabold text-gold-gradient sm:text-9xl">
-          404
-        </motion.span>
-        <motion.h1 variants={fadeUp} className="heading-section mt-4">
-          Page not found
-        </motion.h1>
-        <motion.p variants={fadeUp} className="text-lead mt-4">
-          This page doesn&apos;t exist yet. More of PartnerLink is on the way.
-        </motion.p>
-        <motion.div variants={fadeUp} className="mt-9 flex flex-wrap justify-center gap-3">
-          <Button to={ROUTES.HOME} size="lg" icon={Home} iconPosition="left">
+    <section className="lost">
+      <div>
+        <p className="label rise">Error · page not on the sheet</p>
+        <div className="rise" style={{ '--d': 80, marginTop: 20 }}>
+          <Plates>404</Plates>
+        </div>
+        <p className="lead rise" style={{ '--d': 160, margin: '28px auto 0' }}>
+          This page was never printed. Head back and find your team from the start.
+        </p>
+        <div className="row-act rise" style={{ '--d': 220, justifyContent: 'center', marginTop: 28 }}>
+          <Button to={ROUTES.HOME} variant="solid" size="lg">
             Back to home
           </Button>
-          <Button href="#features" size="lg" variant="secondary" icon={Compass} iconPosition="left">
-            Explore features
+          <Button to={ROUTES.REGISTER} size="lg">
+            Get started
           </Button>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

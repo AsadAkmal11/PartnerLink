@@ -1,22 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import Badge from '../components/common/Badge.jsx';
-import Button from '../components/common/Button.jsx';
-import Card from '../components/common/Card.jsx';
+import { Button, PageHead, Segmented, Stamp } from '../components/ui.jsx';
 import { api } from '../services/api.js';
+
+const when = (iso) =>
+  new Date(iso).toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 export default function AdminApprovalsPage() {
   const [status, setStatus] = useState('PENDING');
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState(null);
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState('');
 
   const load = useCallback(async () => {
     setError('');
     try {
-      const data = await api.approvals(status || undefined);
-      setRows(data);
+      setRows(await api.approvals(status || undefined));
     } catch (err) {
       setError(err.message);
+      setRows([]);
     }
   }, [status]);
 
@@ -38,80 +39,69 @@ export default function AdminApprovalsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Faculty approvals</h1>
-        <p className="mt-2 text-text-secondary">
-          Audit-backed workflow: every decision stores who acted and when.
-        </p>
-      </header>
+    <>
+      <PageHead label="05 — Approvals" title="Faculty desk.">
+        Audit-backed workflow: every decision stores who acted and when. Students only see approved faculty.
+      </PageHead>
 
-      <div className="flex flex-wrap gap-2">
-        {['PENDING', 'APPROVED', 'REJECTED', ''].map((value) => (
-          <button
-            key={value || 'ALL'}
-            type="button"
-            onClick={() => setStatus(value)}
-            className={`rounded-full px-4 py-2 text-sm font-medium ${
-              status === value ? 'bg-primary text-on-primary' : 'border border-border text-text-muted'
-            }`}
-          >
-            {value || 'All'}
-          </button>
-        ))}
+      <div className="section-head rise" style={{ '--d': 140 }}>
+        <Segmented
+          label="Filter by status"
+          value={status}
+          onChange={setStatus}
+          options={[
+            { value: 'PENDING', label: 'Pending' },
+            { value: 'APPROVED', label: 'Approved' },
+            { value: 'REJECTED', label: 'Rejected' },
+            { value: '', label: 'All' },
+          ]}
+        />
+        <p className="label">{rows ? `${rows.length} requests` : 'Loading…'}</p>
       </div>
 
-      {error && <p className="text-sm text-error">{error}</p>}
+      {error && <p className="err">{error}</p>}
+      {rows === null && <p className="loading">Loading requests</p>}
+      {rows?.length === 0 && <p className="empty">No requests in this filter.</p>}
 
-      <div className="space-y-4">
-        {rows.map((row) => (
-          <Card key={row.id} elevated className="p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="font-display text-lg font-semibold">{row.professor_name}</h2>
-                <p className="text-sm text-text-muted">
+      {rows?.length > 0 && (
+        <ol className="rows" key={status}>
+          {rows.map((row, i) => (
+            <li key={row.id} className="row" data-s={row.status} style={{ '--n': i }}>
+              <div className="row-m">
+                <h3>{row.professor_name}</h3>
+                <span className="row-meta">
                   {row.professor_email} · {row.department}
-                </p>
+                </span>
+                <span className="tags">
+                  {row.domains.map((d) => (
+                    <span key={d.id} className="tag tag-domain">
+                      {d.name}
+                    </span>
+                  ))}
+                </span>
+                <span className="row-meta">
+                  Requested {when(row.created_at)}
+                  {row.acted_at ? ` · Acted ${when(row.acted_at)}` : ''}
+                  {row.note ? ` · ${row.note}` : ''}
+                </span>
               </div>
-              <Badge
-                variant={
-                  row.status === 'APPROVED' ? 'success' : row.status === 'PENDING' ? 'gold' : 'default'
-                }
-              >
-                {row.status}
-              </Badge>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {row.domains.map((d) => (
-                <Badge key={d.id} variant="outline">
-                  {d.name}
-                </Badge>
-              ))}
-            </div>
-            <p className="mt-3 text-xs text-text-muted">
-              Requested {new Date(row.created_at).toLocaleString()}
-              {row.acted_at ? ` · Acted ${new Date(row.acted_at).toLocaleString()}` : ''}
-              {row.note ? ` · ${row.note}` : ''}
-            </p>
-            {row.status === 'PENDING' && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button size="sm" disabled={busyId === row.id} onClick={() => act(row.id, 'approve')}>
-                  Approve
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={busyId === row.id}
-                  onClick={() => act(row.id, 'reject')}
-                >
-                  Reject
-                </Button>
+              <div className="row-r">
+                <Stamp status={row.status} />
+                {row.status === 'PENDING' && (
+                  <div className="row-act">
+                    <Button size="sm" variant="solid" disabled={busyId === row.id} onClick={() => act(row.id, 'approve')}>
+                      Approve
+                    </Button>
+                    <Button size="sm" disabled={busyId === row.id} onClick={() => act(row.id, 'reject')}>
+                      Reject
+                    </Button>
+                  </div>
+                )}
               </div>
-            )}
-          </Card>
-        ))}
-        {rows.length === 0 && <Card className="p-6 text-sm text-text-muted">No requests in this filter.</Card>}
-      </div>
-    </div>
+            </li>
+          ))}
+        </ol>
+      )}
+    </>
   );
 }

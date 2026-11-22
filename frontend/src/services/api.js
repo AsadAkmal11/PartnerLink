@@ -2,7 +2,8 @@
  * api.js — Base fetch utility used by services.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// Empty by default: requests go to /api on the same origin and the Vite proxy forwards them.
+const BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 const TOKEN_KEY = 'partnerlink_token';
 
 export function getToken() {
@@ -31,18 +32,40 @@ export async function apiFetch(path, options = {}) {
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const response = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  } catch {
+    const error = new Error(
+      'Cannot reach the PartnerLink API. Make sure the backend is running (cd backend && npm run dev).',
+    );
+    error.status = 0;
+    throw error;
+  }
+
+  // The proxy answers 502/503/504 when the backend is down.
+  if ([502, 503, 504].includes(response.status)) {
+    const error = new Error(
+      'The PartnerLink API is not responding. Make sure the backend is running on port 4000.',
+    );
+    error.status = response.status;
+    throw error;
+  }
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    const message = body.detail
+    const body = await response.json().catch(() => null);
+    if (body === null && response.status >= 500) {
+      const error = new Error(
+        'The PartnerLink API is not responding. Make sure the backend is running on port 4000.',
+      );
+      error.status = response.status;
+      throw error;
+    }
+    const message = body?.detail
       ? Array.isArray(body.detail)
         ? body.detail.map((d) => d.msg || JSON.stringify(d)).join(', ')
         : body.detail
-      : body.message || `HTTP error ${response.status}`;
+      : body?.message || `HTTP error ${response.status}`;
     const error = new Error(typeof message === 'string' ? message : 'Request failed');
     error.status = response.status;
     throw error;
@@ -82,6 +105,18 @@ export const api = {
     const qs = q.toString();
     return apiFetch(`/api/professors${qs ? `?${qs}` : ''}`);
   },
+  projects: (params = {}) => {
+    const q = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v) q.set(k, v);
+    });
+    const qs = q.toString();
+    return apiFetch(`/api/projects${qs ? `?${qs}` : ''}`);
+  },
+  createProject: (payload) => apiFetch('/api/projects', { method: 'POST', body: JSON.stringify(payload) }),
+  updateProject: (id, payload) =>
+    apiFetch(`/api/projects/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  deleteProject: (id) => apiFetch(`/api/projects/${id}`, { method: 'DELETE' }),
   recommendations: (limit = 12) => apiFetch(`/api/matches/recommendations?limit=${limit}`),
   approvals: (status) =>
     apiFetch(`/api/admin/approvals${status ? `?status=${encodeURIComponent(status)}` : ''}`),

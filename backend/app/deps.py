@@ -4,7 +4,17 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
-from app.models import Professor, ProfessorDomain, Student, StudentDomain, User, UserRole
+from app.models import (
+    ApprovalStatus,
+    Professor,
+    ProfessorDomain,
+    Project,
+    ProjectDomain,
+    Student,
+    StudentDomain,
+    User,
+    UserRole,
+)
 from app.security import decode_access_token
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -57,5 +67,35 @@ def load_professor(db: Session, user_id: str) -> Professor | None:
             selectinload(Professor.user),
             selectinload(Professor.domains).selectinload(ProfessorDomain.domain),
             selectinload(Professor.approval),
+            *professor_project_options(),
         )
     ).scalar_one_or_none()
+
+
+def professor_project_options():
+    """Eager-load a professor's projects with everything project_out() reads."""
+    projects = selectinload(Professor.projects)
+    return (
+        projects.selectinload(Project.domains).selectinload(ProjectDomain.domain),
+        projects.selectinload(Project.professor).selectinload(Professor.user),
+    )
+
+
+def is_approved_professor(db: Session, user: User) -> bool:
+    if user.role != UserRole.professor:
+        return False
+    professor = load_professor(db, user.id)
+    return bool(professor and professor.approval and professor.approval.status == ApprovalStatus.APPROVED)
+
+
+def require_directory_access(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> User:
+    """Students and admins can browse; faculty can once an admin has approved them."""
+    if user.role == UserRole.professor and not is_approved_professor(db, user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Faculty can browse students once an admin approves their account",
+        )
+    return user

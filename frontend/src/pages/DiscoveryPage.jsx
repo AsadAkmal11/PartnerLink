@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
-import PersonCard from '../components/common/PersonCard.jsx';
+import { Field, PageHead, PersonCard, Segmented } from '../components/ui.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../services/api.js';
+import { ROUTES } from '../routes/paths.js';
 
 export default function DiscoveryPage() {
-  const [tab, setTab] = useState('students');
+  const { user, professor } = useAuth();
+  const isFaculty = user?.role === 'professor';
+  const pendingFaculty = isFaculty && professor?.approval_status !== 'APPROVED';
+  const [tab, setTab] = useState(pendingFaculty ? 'faculty' : 'students');
   const [search, setSearch] = useState('');
   const [skill, setSkill] = useState('');
   const [domain, setDomain] = useState('');
@@ -19,6 +24,10 @@ export default function DiscoveryPage() {
       setError('');
       try {
         if (tab === 'students') {
+          if (pendingFaculty) {
+            if (!cancelled) setStudents([]);
+            return;
+          }
           const data = await api.students({ search, skill, domain });
           if (!cancelled) setStudents(data);
         } else {
@@ -36,97 +45,103 @@ export default function DiscoveryPage() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [tab, search, skill, domain]);
+  }, [tab, search, skill, domain, pendingFaculty]);
+
+  const list = tab === 'students' ? students : professors;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-4xl tracking-tight">Discovery</h1>
-        <p className="mt-2 text-text-secondary">
-          Filter GIKI peers by skills and research domains, or find approved faculty supervisors.
+    <>
+      <PageHead label="02 — Discovery" title="The directory.">
+        {isFaculty
+          ? 'Browse GIKI students by skill and research interest, and reach out to the ones you want on your projects.'
+          : 'Filter GIKI peers by skill and research domain, or find an approved faculty supervisor and the projects they are offering.'}
+      </PageHead>
+
+      <div className="section-head rise" style={{ '--d': 140 }}>
+        <Segmented
+          label="Directory"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'students', label: 'Students' },
+            { value: 'faculty', label: 'Faculty' },
+          ]}
+        />
+        <p className="label" aria-live="polite">
+          {loading ? 'Searching…' : `${list.length} ${tab === 'students' ? 'students' : 'professors'}`}
         </p>
-      </header>
-
-      <div className="flex flex-wrap gap-2">
-        {['students', 'faculty'].map((value) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setTab(value)}
-            className={`rounded-[10px] px-4 py-2 text-sm font-medium capitalize ${
-              tab === value ? 'bg-primary text-on-primary' : 'glass-pill text-text-muted'
-            }`}
-          >
-            {value}
-          </button>
-        ))}
       </div>
 
-      <div className="glass-pill grid gap-3 p-4 sm:grid-cols-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search name or program"
-          className="rounded-[10px] border border-border/60 bg-background/50 px-3 py-2.5 text-sm outline-none focus:border-primary"
-        />
+      <div className="filters rise" style={{ '--d': 180 }}>
+        <Field label="Search">
+          <input className="input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Name or program" />
+        </Field>
         {tab === 'students' && (
-          <input
-            value={skill}
-            onChange={(e) => setSkill(e.target.value)}
-            placeholder="Filter by skill"
-            className="rounded-[10px] border border-border/60 bg-background/50 px-3 py-2.5 text-sm outline-none focus:border-primary"
-          />
+          <Field label="Skill">
+            <input className="input" value={skill} onChange={(e) => setSkill(e.target.value)} placeholder="e.g. PyTorch" />
+          </Field>
         )}
-        <input
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          placeholder="Filter by research domain"
-          className="rounded-[10px] border border-border/60 bg-background/50 px-3 py-2.5 text-sm outline-none focus:border-primary"
-        />
+        <Field label="Research domain">
+          <input className="input" value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="e.g. Robotics" />
+        </Field>
       </div>
 
-      {loading && <p className="text-sm text-text-muted">Loading…</p>}
-      {error && <p className="text-sm text-error">{error}</p>}
-
-      {tab === 'students' ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {students.map((student) => (
-            <PersonCard
-              key={student.id}
-              name={student.name}
-              subtitle={student.program || student.email}
-              tags={[
-                ...student.skills.slice(0, 4).map((s) => s.name),
-                ...student.desired_domains.slice(0, 2).map((d) => d.name),
-              ]}
-              footer={student.cgpa != null ? `CGPA ${student.cgpa.toFixed(2)}` : undefined}
-            >
-              {student.bio}
-            </PersonCard>
-          ))}
-          {!loading && students.length === 0 && (
-            <p className="text-sm text-text-muted sm:col-span-2 lg:col-span-3">No students match these filters.</p>
-          )}
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {professors.map((prof) => (
-            <PersonCard
-              key={prof.id}
-              name={prof.name}
-              subtitle={prof.department}
-              tags={prof.domains.map((d) => d.name)}
-            >
-              {prof.bio}
-            </PersonCard>
-          ))}
-          {!loading && professors.length === 0 && (
-            <p className="text-sm text-text-muted sm:col-span-2 lg:col-span-3">
-              No approved faculty match these filters.
-            </p>
-          )}
-        </div>
-      )}
-    </div>
+      <section className="section">
+        {error && <p className="err">{error}</p>}
+        {tab === 'students' && pendingFaculty && (
+          <p className="empty">You can browse student profiles once an admin approves your faculty account.</p>
+        )}
+        {!loading && !error && list.length === 0 && !(tab === 'students' && pendingFaculty) && (
+          <p className="empty">
+            {tab === 'students' ? 'No students match these filters.' : 'No approved faculty match these filters.'}
+          </p>
+        )}
+        <ul className="grid-3" key={tab}>
+          {tab === 'students'
+            ? students.map((s, i) => (
+                <PersonCard
+                  key={s.id}
+                  index={i}
+                  name={s.name}
+                  role={s.program || s.email}
+                  bio={s.bio}
+                  tags={s.skills.slice(0, 4).map((x) => x.name)}
+                  domains={s.desired_domains.slice(0, 2).map((d) => d.name)}
+                  foot={
+                    <>
+                      <span>{s.cgpa != null ? `CGPA ${s.cgpa.toFixed(2)}` : 'CGPA —'}</span>
+                      <a
+                        className="link"
+                        href={`mailto:${s.email}${isFaculty ? `?subject=${encodeURIComponent('FYP project opportunity')}` : ''}`}
+                      >
+                        {isFaculty ? 'Invite to project' : 'Say hello'}
+                      </a>
+                    </>
+                  }
+                />
+              ))
+            : professors.map((p, i) => (
+                <PersonCard
+                  key={p.id}
+                  index={i}
+                  name={p.name}
+                  role={p.department}
+                  bio={p.bio}
+                  domains={p.domains.map((d) => d.name)}
+                  projects={p.projects}
+                  projectsLink={`${ROUTES.PROJECTS}?search=${encodeURIComponent(p.name)}`}
+                  foot={
+                    <>
+                      <span>Approved faculty</span>
+                      <a className="link" href={`mailto:${p.email}`}>
+                        Contact
+                      </a>
+                    </>
+                  }
+                />
+              ))}
+        </ul>
+      </section>
+    </>
   );
 }

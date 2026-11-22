@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.database import Base, SessionLocal, engine
 from app.matching import recompute_all_matches
-from app.routers import admin, auth, domains, health, matches, professors, profiles, students
+from app.routers import admin, auth, domains, health, matches, professors, profiles, projects, students
 from app.seed import seed_database
 
 logger = logging.getLogger("partnerlink")
@@ -35,7 +34,7 @@ async def _match_refresh_loop(stop_event: asyncio.Event) -> None:
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    Path("data").mkdir(parents=True, exist_ok=True)
+    print(f"PartnerLink API using database: {engine.url.database}", flush=True)
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
@@ -60,6 +59,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.origins,
+    # In development, accept the Vite dev/preview server on any local port or host alias.
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?" if settings.node_env == "development" else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,4 +73,5 @@ app.include_router(profiles.router, prefix="/api")
 app.include_router(students.router, prefix="/api")
 app.include_router(professors.router, prefix="/api")
 app.include_router(matches.router, prefix="/api")
+app.include_router(projects.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")

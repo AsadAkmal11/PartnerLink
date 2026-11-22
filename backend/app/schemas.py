@@ -71,6 +71,43 @@ class StudentProfileUpdate(BaseModel):
     desired_domain_ids: list[str] | None = None
 
 
+class ProjectProfessorOut(BaseModel):
+    id: str
+    name: str
+    email: EmailStr
+    department: str
+
+
+class ProjectOut(BaseModel):
+    id: str
+    title: str
+    summary: str
+    team_size: int
+    status: Literal["OPEN", "CLOSED"]
+    domains: list[DomainOut]
+    skills: list[DomainOut]
+    professor: ProjectProfessorOut
+    created_at: datetime
+    updated_at: datetime
+
+
+class ProjectCreate(BaseModel):
+    title: str = Field(min_length=4, max_length=160)
+    summary: str = Field(min_length=20, max_length=4000)
+    team_size: int = Field(default=3, ge=1, le=6)
+    domain_ids: list[str] = Field(default_factory=list)
+    skill_ids: list[str] = Field(default_factory=list)
+
+
+class ProjectUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=4, max_length=160)
+    summary: str | None = Field(default=None, min_length=20, max_length=4000)
+    team_size: int | None = Field(default=None, ge=1, le=6)
+    status: Literal["OPEN", "CLOSED"] | None = None
+    domain_ids: list[str] | None = None
+    skill_ids: list[str] | None = None
+
+
 class ProfessorProfileOut(BaseModel):
     id: str
     user_id: str
@@ -81,6 +118,7 @@ class ProfessorProfileOut(BaseModel):
     domains: list[DomainOut]
     approval_status: Literal["PENDING", "APPROVED", "REJECTED"]
     approval_note: str | None = None
+    projects: list[ProjectOut] = Field(default_factory=list)
 
 
 class ProfessorProfileUpdate(BaseModel):

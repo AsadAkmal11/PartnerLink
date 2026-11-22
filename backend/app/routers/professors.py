@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import get_current_user, professor_project_options
 from app.models import ApprovalStatus, Professor, ProfessorDomain, User
 from app.schemas import ProfessorProfileOut
 from app.serializers import professor_profile_out
@@ -24,6 +24,7 @@ def list_approved_professors(
                 selectinload(Professor.user),
                 selectinload(Professor.domains).selectinload(ProfessorDomain.domain),
                 selectinload(Professor.approval),
+                *professor_project_options(),
             )
         )
         .scalars()
@@ -37,7 +38,7 @@ def list_approved_professors(
     for professor in professors:
         if not professor.approval or professor.approval.status != ApprovalStatus.APPROVED:
             continue
-        profile = professor_profile_out(professor)
+        profile = professor_profile_out(professor, open_projects_only=True)
         if needle:
             hay = f"{profile.name} {profile.email} {profile.department}".lower()
             if needle not in hay:
